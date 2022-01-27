@@ -24,6 +24,3 @@ hs_err_pid*
 
 #ignore .idea
 .idea/*
-
-#don't have a clue what this iml file is for
-simplestFrontToBack.iml
