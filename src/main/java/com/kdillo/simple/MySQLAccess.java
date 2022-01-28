@@ -6,16 +6,15 @@ package com.kdillo.simple;
  * This is for a simple database connection using MYSQL
  */
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.sql.*;
 import java.util.Date;
 import java.util.Properties;
 
 public class MySQLAccess {
+    Logger LOGGER = LogManager.getLogger(this.getClass());
 
     private Connection connect = null;
     private Statement statement = null;
@@ -27,7 +26,6 @@ public class MySQLAccess {
             Class.forName("com.mysql.cj.jdbc.Driver");
 
             //localhost/schema?(credentials)
-
             String dbnameProp = props.getProperty("db.name");
             String dbname = dbnameProp == null ? "" : "/" + dbnameProp;
             String host = props.getProperty("db.url");

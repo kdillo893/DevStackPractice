@@ -1,15 +1,14 @@
 package com.kdillo.simple;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.util.Properties;
 
 public class SimpleApp {
 
-    private final Logger LOGGER = LogManager.getLogger(this.getClass());
-    private Properties dbProps;
+    private static final Logger LOGGER = LogManager.getLogger();
 
     public static void main(String[] args) {
 
@@ -29,6 +28,7 @@ public class SimpleApp {
         } catch (IOException ex) {
             //unable to load from properties file..
             System.out.println("Never loaded props file, " + ex.getMessage());
+            LOGGER.error(ex.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
         }
