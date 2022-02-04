@@ -1,5 +1,6 @@
 package com.kdillo.simple;
 
+import com.kdillo.simple.db.MySQLAccess;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

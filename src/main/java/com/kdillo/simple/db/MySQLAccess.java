@@ -1,4 +1,4 @@
-package com.kdillo.simple;
+package com.kdillo.simple.db;
 
 /*
  * Reference from https://www.vogella.com/tutorials/MySQLJava/article.html, modifying to fit with my db.
