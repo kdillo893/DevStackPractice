@@ -4,14 +4,16 @@ import com.kdillo.simple.db.MySQLAccess;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 public class SimpleApp {
 
+    private static Properties properties = null;
     private static final Logger LOGGER = LogManager.getLogger();
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
 
         //load app properties from config file.
         try (InputStream configFileStream = SimpleApp.class.getClassLoader().getResourceAsStream("config.properties")) {
@@ -22,10 +24,7 @@ public class SimpleApp {
             Properties props = new Properties();
             props.load(configFileStream);
 
-            //properties loaded, attempt to read and test from db
-            MySQLAccess dbAccess = new MySQLAccess();
-            dbAccess.readDataBase(props);
-
+            properties = props;
         } catch (IOException ex) {
             //unable to load from properties file..
             System.out.println("Never loaded props file, " + ex.getMessage());
@@ -33,5 +32,14 @@ public class SimpleApp {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        if (properties == null || properties.isEmpty()) {
+            //failed to load properties, exit app.
+            return;
+        }
+
+
+        MySQLAccess dbAccess = new MySQLAccess(properties);
+        dbAccess.readDataBase();
     }
 }

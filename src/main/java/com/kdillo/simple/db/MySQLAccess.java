@@ -6,9 +6,12 @@ package com.kdillo.simple.db;
  * This is for a simple database connection using MYSQL
  */
 
+import com.kdillo.simple.SimpleApp;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.*;
 import java.util.Date;
 import java.util.Properties;
@@ -16,27 +19,65 @@ import java.util.Properties;
 public class MySQLAccess {
     Logger LOGGER = LogManager.getLogger(this.getClass());
 
+    private final static String DB_DRIVER = "com.mysql.cj.jdbc.Driver";
+    private String DB_HOST = null;
+    private String DB_NAME = null;
+    private String DB_USER = null;
+    private String DB_PW = null;
+
     private Connection connect = null;
     private Statement statement = null;
     private ResultSet resultSet = null;
 
-    public void readDataBase(Properties props) throws Exception {
+    public MySQLAccess() {
+        //when loaded, read the properties file to gain defaults...
+        try (InputStream configFileStream = SimpleApp.class.getClassLoader().getResourceAsStream("config.properties")) {
+            if (configFileStream == null) {
+                System.out.println("No props file found");
+                return;
+            }
+            Properties props = new Properties();
+            props.load(configFileStream);
+
+            new MySQLAccess(props);
+        } catch (IOException ex) {
+            //unable to load from properties file..
+            System.out.println("Never loaded props file, " + ex.getMessage());
+            LOGGER.error(ex.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public MySQLAccess(Properties props) {
+        String dbnameProp = props.getProperty("db.name");
+        String dbname = dbnameProp == null ? "" : "/" + dbnameProp;
+
+        String host = props.getProperty("db.url");
+        String user = props.getProperty("db.user");
+        String password = props.getProperty("db.password");
+
+        this.DB_NAME = dbname;
+        this.DB_HOST = host;
+        this.DB_USER = user;
+        this.DB_PW = password;
+    }
+
+    /**
+     * private method for using parameters to form the database request...
+     * @return constructed url for db host and name
+     */
+    private String getDBUrl() {
+        return "jdbc:mysql://"+this.DB_HOST+this.DB_NAME;
+    }
+
+    public void readDataBase() throws Exception {
         try {
             // This will load the MySQL driver, each DB has its own driver
-            Class.forName("com.mysql.cj.jdbc.Driver");
-
-            //localhost/schema?(credentials)
-            String dbnameProp = props.getProperty("db.name");
-            String dbname = dbnameProp == null ? "" : "/" + dbnameProp;
-            String host = props.getProperty("db.url");
-            String user = props.getProperty("db.user");
-            String password = props.getProperty("db.password");
-
-            //construct url for mysql db connection using the property info...
-            String url = "jdbc:mysql://"+host+dbname+"?user="+user+"&password="+password;
+            Class.forName(DB_DRIVER);
 
             //Set up the connection with the DB
-            connect = DriverManager.getConnection(url, user, password);
+            connect = DriverManager.getConnection(this.getDBUrl(), this.DB_USER, this.DB_PW);
 
             // SAMPLE STATEMENT FOR SELECTING; PLACE IN RESULT SET
             statement = connect.createStatement();
@@ -49,15 +90,16 @@ public class MySQLAccess {
 
             //SAMPLE UPDATING TABLE WITH A VALUE
             PreparedStatement preparedStatement = connect
-                    .prepareStatement("insert into  scratchapp.user values (?, ?, ?, ?)");
-            preparedStatement.setString(1, "TestUsername");
-            preparedStatement.setString(2, "TestEmail");
-            preparedStatement.setString(3, "TestPassword123");
-            preparedStatement.setDate(4, new java.sql.Date(defaultDate.getTime()));
+                    .prepareStatement("insert into  scratchapp.user values (?, ?, ?, ?, ?)");
+            preparedStatement.setInt(1, 1);
+            preparedStatement.setString(2, "TestUsername");
+            preparedStatement.setString(3, "TestEmail");
+            preparedStatement.setString(4, "TestPassword123");
+            preparedStatement.setDate(5, new java.sql.Date(defaultDate.getTime()));
             preparedStatement.executeUpdate();
 
             preparedStatement = connect
-                    .prepareStatement("SELECT username, email, password, create_time from scratchapp.user");
+                    .prepareStatement("SELECT userid, username, email, password, create_time from scratchapp.user");
             resultSet = preparedStatement.executeQuery();
             writeResultSet(resultSet);
 
