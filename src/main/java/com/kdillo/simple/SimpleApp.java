@@ -3,6 +3,7 @@ package com.kdillo.simple;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -24,9 +25,12 @@ public class SimpleApp {
     //initialize a random number generator when the app launches
     static SecureRandom rnd = new SecureRandom();
 
-    public static void main(String[] args) throws Exception {
+    static Properties props = null;
+
+    public static void main(String[] args){
 
         try {
+            getApplicationProperties();
             DummyRun();
         } catch (SQLException exs) {
             exs.printStackTrace();
@@ -69,15 +73,16 @@ public class SimpleApp {
     public static void DummyRun() throws Exception, SQLException {
         //just a dummy run to see if I can make the database access work.
 
-        //set up properties for the db driver connection:
-        Properties props = new Properties();
-        props.setProperty("user", "kdill");
-        props.setProperty("password", "testing123;DB");
+        //load dbProps from the application properties (db.X)
+        Properties dbProps = new Properties();
+        dbProps.setProperty("user", props.getProperty("db.user"));
+        dbProps.setProperty("password", props.getProperty("db.password"));
 
-        String url = "jdbc:postgresql://127.0.0.1:5432/simple?currentSchema=webapp";
+        String url = props.getProperty("db.url") + props.getProperty("db.name") +
+                "?currentSchema=" + props.getProperty("db.schema");
 
-        //connector:
-        Connection conn = DriverManager.getConnection(url, props);
+        //connector, use the db properties
+        Connection conn = DriverManager.getConnection(url, dbProps);
 
         //getting a user from the users table, print all the info from the rows returned.
         Statement st = conn.createStatement();
@@ -176,5 +181,16 @@ public class SimpleApp {
         for(int i = 0; i < len; i++)
             sb.append(ALPHANUMERIC.charAt(rnd.nextInt(ALPHANUMERIC.length())));
         return sb.toString();
+    }
+
+    private static void getApplicationProperties() {
+
+        try (InputStream propsStream = new FileInputStream("src/main/resources/config.properties")) {
+            props = new Properties();
+
+            props.load(propsStream);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
 }
