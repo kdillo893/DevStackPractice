@@ -1,2 +1,3 @@
 #don't show the db property file...
-config.propertiess
+config.properties
+.env

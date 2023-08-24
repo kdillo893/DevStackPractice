@@ -24,3 +24,7 @@ hs_err_pid*
 
 #ignore .idea
 .idea/*
+
+#target directory from maven compile
+target/*
+target/**/*
