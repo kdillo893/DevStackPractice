@@ -18,6 +18,8 @@ import java.util.UUID;
 
 public class SimpleApp {
 
+    private static final String SHA512 = "SHA512";
+
     private static final Logger LOGGER = LogManager.getLogger(SimpleApp.class);
 
     private static final String ALPHANUMERIC = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -75,7 +77,7 @@ public class SimpleApp {
             //testing to update the passHash of my user row with an update statement.rAN
             //make a password hash out of random salt
             String newSalt = randomString(32);
-            String passHash = digestMessageWithAlg("silly-Thing123;xD", "SHA512");
+            String passHash = digestMessageWithAlg("silly-Thing123;xD", SHA512);
 
             UUID myUid = UUID.fromString("7d95e88a-f10f-4b20-8303-e26db72ddd74");
             PreparedStatement pst = conn.prepareStatement("update users set pass_hash = ?, pass_salt = ? where uid = ? ;;");
@@ -100,6 +102,12 @@ public class SimpleApp {
         }
     }
 
+    /**
+     * Got from reference online; should move this to where it will be relevant (either User or different file later)
+     * @param message
+     * @param alg
+     * @return
+     */
     protected static String digestMessageWithAlg(String message, String alg) {
 
         try {
@@ -130,8 +138,12 @@ public class SimpleApp {
 
     public static String randomString(int len){
         StringBuilder sb = new StringBuilder(len);
-        for(int i = 0; i < len; i++)
+        for (int i = 0; i < len; i++){
             sb.append(ALPHANUMERIC.charAt(rnd.nextInt(ALPHANUMERIC.length())));
+        }
+
+        LOGGER.debug("random string produced: " + sb.toString());
+
         return sb.toString();
     }
 
@@ -142,6 +154,7 @@ public class SimpleApp {
 
             props.load(propsStream);
         } catch (IOException ex) {
+            LOGGER.debug("Unable to load app properties");
             ex.printStackTrace();
         }
     }

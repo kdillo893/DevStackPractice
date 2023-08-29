@@ -12,7 +12,7 @@ public class PostgresqlConnectionProvider {
     private final String dbName;
     private final String dbSchema;
     private final String dbHost;
-    private int dbPort = 5432;
+    private final int dbPort;
 
     public PostgresqlConnectionProvider(Properties props) {
         //load dbProps from the application properties (db.X) passed.
