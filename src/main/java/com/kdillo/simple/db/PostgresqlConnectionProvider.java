@@ -26,7 +26,7 @@ public class PostgresqlConnectionProvider {
 
     }
 
-    public Connection getConnection() throws SQLException {
+    public Connection getConnection() throws SQLException, ClassNotFoundException {
 
         Properties dbProps = new Properties();
         dbProps.setProperty("user", dbUser);
@@ -35,6 +35,7 @@ public class PostgresqlConnectionProvider {
         String url = "jdbc:postgresql://" + dbHost + ":" + dbPort + "/"
                 + dbName + "?currentSchema=" + dbSchema;
 
+        Class.forName("org.postgresql.Driver");
         //return connector, use the db properties
         return DriverManager.getConnection(url, dbProps);
     }

@@ -1,6 +1,8 @@
 package com.kdillo.simple;
 
+import com.kdillo.simple.datamodel.User;
 import com.kdillo.simple.db.PostgresqlConnectionProvider;
+import com.kdillo.simple.db.UserDAO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -11,6 +13,7 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Optional;
 import java.util.Properties;
 
 import java.sql.*;
@@ -22,6 +25,7 @@ public class SimpleApp {
 
     private static final Logger LOGGER = LogManager.getLogger(SimpleApp.class);
 
+    @SuppressWarnings("SpellCheckingInspection")
     private static final String ALPHANUMERIC = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     //initialize a random number generator when the app launches
     public static final SecureRandom rnd = new SecureRandom();
@@ -36,12 +40,24 @@ public class SimpleApp {
 //            PGSimpleDataSource ds = new PGSimpleDataSource();
             PostgresqlConnectionProvider pgConProvider = new PostgresqlConnectionProvider(props);
 
-            DummyRun(pgConProvider);
+//            DummyRun(pgConProvider);
+
+            SampleUserTest(pgConProvider);
 
             //main loop
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+
+    public static void SampleUserTest(PostgresqlConnectionProvider pgConProvider) {
+        User testUser = new User();
+//        testUser.setUid(UUID.fromString("7d95e88a-f10f-4b20-8303-e26db72ddd74"));
+
+        UserDAO userDAO = new UserDAO(testUser, pgConProvider);
+        Optional<User> optionalUser = userDAO.getById(UUID.fromString("7d95e88a-f10f-4b20-8303-e26db72ddd74"));
+
+        System.out.println(optionalUser);
     }
 
     public static void DummyRun(PostgresqlConnectionProvider pgConProvider) {
@@ -77,7 +93,7 @@ public class SimpleApp {
             //testing to update the passHash of my user row with an update statement.rAN
             //make a password hash out of random salt
             String newSalt = randomString(32);
-            String passHash = digestMessageWithAlg("silly-Thing123;xD", SHA512);
+            String passHash = digestMessageWithSHA512("silly-Thing123;xD");
 
             UUID myUid = UUID.fromString("7d95e88a-f10f-4b20-8303-e26db72ddd74");
             PreparedStatement pst = conn.prepareStatement("update users set pass_hash = ?, pass_salt = ? where uid = ? ;;");
@@ -104,14 +120,13 @@ public class SimpleApp {
 
     /**
      * Got from reference online; should move this to where it will be relevant (either User or different file later)
-     * @param message
-     * @param alg
-     * @return
+     * @param message String, the message to be digested
+     * @return the digested message in the given hashing algorithm; for SHA512, just doing to 32chars.
      */
-    protected static String digestMessageWithAlg(String message, String alg) {
+    protected static String digestMessageWithSHA512(String message) {
 
         try {
-            MessageDigest md = MessageDigest.getInstance(alg);
+            MessageDigest md = MessageDigest.getInstance(SHA512);
 
             byte[] messageDigest = md.digest(message.getBytes());
 
@@ -126,7 +141,7 @@ public class SimpleApp {
             return hashtextSb.toString();
 
         } catch (NoSuchAlgorithmException ex) {
-            System.err.printf("Couldn't find algorithm: %s", alg);
+            System.err.print("Couldn't find algorithm for SHA512");
             throw new RuntimeException(ex);
         } catch (Exception ex) {
            // unknown
@@ -142,7 +157,7 @@ public class SimpleApp {
             sb.append(ALPHANUMERIC.charAt(rnd.nextInt(ALPHANUMERIC.length())));
         }
 
-        LOGGER.debug("random string produced: " + sb.toString());
+        LOGGER.debug("random string produced: " + sb);
 
         return sb.toString();
     }
