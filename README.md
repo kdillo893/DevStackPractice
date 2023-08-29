@@ -4,7 +4,7 @@ Creating a shell of an application, which includes a database connection, object
 This is going to take a while, since I need to brainstorm what to do with it and also decide what technologies to use for practice.
 
 ## postgres setup
-in order to have a postgres database and other things, need to download the client and set things up.
+in order to have a postgres database and other things, need to download the client and set things up. Some arch instructions here: https://wiki.archlinux.org/title/PostgreSQL
 
 1. download and install from latest here for the given platform: https://www.postgresql.org/download/
 2. enable the services for postgresql and start them (in arch/manjaro, this is ```systemctl enable/start postgresql``` )
