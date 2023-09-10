@@ -1,5 +1,7 @@
 package com.kdillo.simple.datamodel;
 
+import com.kdillo.simple.SimpleApp;
+
 import javax.management.InvalidAttributeValueException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -12,6 +14,8 @@ import java.util.UUID;
  */
 @SuppressWarnings("unused")
 public class User {
+    private static final int SALT_LENGTH = 32;
+
     private UUID uid;
     private String first_name;
     private String last_name;
@@ -96,13 +100,10 @@ public class User {
         this.updated = updated;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
     public void setPassword(String password) {
         this.password = password;
     }
+    public boolean hasPassword() { return !this.password.isEmpty(); }
 
     public String getPassHash() {
         return pass_hash;
@@ -112,8 +113,8 @@ public class User {
         return pass_salt;
     }
 
-    public void setPassSalt(String pass_salt) {
-        this.pass_salt = pass_salt;
+    public void generateNewSalt() {
+        this.pass_salt = SimpleApp.randomString(SALT_LENGTH);
     }
 
     /**
@@ -135,15 +136,15 @@ public class User {
 
             byte[] messageDigest = md.digest(message.getBytes());
 
-            //convert byte into signum representation? seems like this is for proper char bytesize conversion.
+            //convert byte into signum representation? seems like this is for proper char byte size conversion.
             //converts the very large value into string simply
             BigInteger no = new BigInteger(1, messageDigest);
-            StringBuilder hashtextSb = new StringBuilder(no.toString(16));
+            StringBuilder hashTextSb = new StringBuilder(no.toString(16));
 
             //if the hash is too small, fill with 0's
-            while(hashtextSb.length() < 32) hashtextSb.insert(0, '0');
+            while(hashTextSb.length() < 32) hashTextSb.insert(0, '0');
 
-            this.pass_hash = hashtextSb.toString();
+            this.pass_hash = hashTextSb.toString();
 
         } catch (NoSuchAlgorithmException ex) {
             System.err.print("Couldn't find algorithm for SHA512");

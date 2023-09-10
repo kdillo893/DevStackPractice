@@ -13,6 +13,7 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -37,7 +38,10 @@ public class SimpleApp {
         try {
             loadApplicationProperties();
 
+            //TODO: figure out how to use datastore for postgresql instead of abstracted thing.
 //            PGSimpleDataSource ds = new PGSimpleDataSource();
+
+            //abstracted connection provider, which spins up new DB connections;
             PostgresqlConnectionProvider pgConProvider = new PostgresqlConnectionProvider(props);
 
 //            DummyRun(pgConProvider);
@@ -55,11 +59,45 @@ public class SimpleApp {
 //        testUser.setUid(UUID.fromString("7d95e88a-f10f-4b20-8303-e26db72ddd74"));
 
         UserDAO userDAO = new UserDAO(testUser, pgConProvider);
-        Optional<User> optionalUser = userDAO.getById(UUID.fromString("7d95e88a-f10f-4b20-8303-e26db72ddd74"));
 
+        //get a user by ID
+        Optional<User> optionalUser = userDAO.getById(UUID.fromString("7d95e88a-f10f-4b20-8303-e26db72ddd74"));
         System.out.println(optionalUser);
+
+        //overwrite the first name of the user from above (if exists) to "Tyler" if "Kevin" and vice versa
+        if (optionalUser.isPresent()) {
+            User theUser =  optionalUser.get();
+
+            if (theUser.getFirstName().equals("Kevin") ) {
+                theUser.setFirstName("Tyler");
+            } else if (theUser.getFirstName().equals("Tyler") ) {
+                theUser.setFirstName("Kevin");
+            }
+
+            try {
+                boolean wasUpdated = userDAO.update(theUser);
+
+                if (wasUpdated) {
+                    System.out.println("The user was updated");
+                } else {
+                    System.out.println("the user was NOT updated.");
+                }
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
+
+        }
+
+        //find users matching a certain criteria on User object
+        testUser.setLastName("Dillon");
+        List<User> users = userDAO.getAll(testUser);
+        System.out.println(users);
+
     }
 
+    @SuppressWarnings("unused")
     public static void DummyRun(PostgresqlConnectionProvider pgConProvider) {
         //just a dummy run to see if I can make the database access work.
 
@@ -118,6 +156,7 @@ public class SimpleApp {
         }
     }
 
+    @Deprecated
     /**
      * Got from reference online; should move this to where it will be relevant (either User or different file later)
      * @param message String, the message to be digested
