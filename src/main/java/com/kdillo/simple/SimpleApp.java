@@ -103,8 +103,10 @@ public class SimpleApp {
 
 
         try {
-            userDbImpl.deleteById(newUserId);
-            System.out.printf("user deleted: uuid=%s\n", newUserId.toString());
+            boolean userWasDeleted = userDbImpl.deleteById(newUserId);
+            System.out.printf("user %s deleted: uuid=%s\n",
+                    userWasDeleted ? "was" : "was NOT",
+                    newUserId.toString());
         } catch (Exception ex) {
             ex.printStackTrace();
         }

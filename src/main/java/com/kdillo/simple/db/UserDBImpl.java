@@ -1,7 +1,6 @@
 package com.kdillo.simple.db;
 
 import com.kdillo.simple.entities.User;
-import com.sun.source.tree.Tree;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -206,7 +205,7 @@ public class UserDBImpl {
     }
 
     public boolean delete(User obj) throws Exception {
-        return false;
+        return deleteById(obj.getUid());
     }
 
     public boolean deleteById(UUID uuid) throws Exception {
