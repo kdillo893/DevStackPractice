@@ -1,6 +1,8 @@
 package com.kdillo.simple.entities;
 
 import com.kdillo.simple.SimpleApp;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.management.InvalidAttributeValueException;
 import java.math.BigInteger;
@@ -13,6 +15,8 @@ import java.util.UUID;
  * POJO User
  */
 public class User {
+    private static final Logger LOGGER = LogManager.getLogger(User.class);
+
     private static final int SALT_LENGTH = 32;
 
     private UUID uid;
@@ -35,6 +39,16 @@ public class User {
         this.created = null;
         this.updated = null;
         this.password = null;
+    }
+
+    /**
+     * constructor for user creation (no id, timestamps, or pass hash/salt)
+     */
+    public User(String first_name, String last_name, String email, String password) {
+        this.first_name = first_name;
+        this.last_name = last_name;
+        this.email = email;
+        this.password = password;
     }
 
     /**
@@ -150,6 +164,26 @@ public class User {
             throw new RuntimeException(ex);
         } catch (Exception ex) {
             // unknown
+        }
+    }
+
+    /**
+     * Calculate the password hash and assign the pass_hash and pass_salt with new values
+     * dependent on its password field.
+     */
+    public void calculatePassHashWithNewSalt() {
+
+        if (!this.hasPassword()) {
+            return;
+        }
+
+        this.generateNewSalt();
+
+        try {
+            this.digestPasswordWithSHA512();
+        } catch (Exception ex) {
+            LOGGER.debug("Unable to digest properly, check");
+            ex.printStackTrace();
         }
     }
 

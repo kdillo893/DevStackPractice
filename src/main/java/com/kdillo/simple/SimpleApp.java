@@ -2,7 +2,7 @@ package com.kdillo.simple;
 
 import com.kdillo.simple.entities.User;
 import com.kdillo.simple.db.PostgresqlConnectionProvider;
-import com.kdillo.simple.db.UserDAO;
+import com.kdillo.simple.db.UserDBImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -55,18 +55,20 @@ public class SimpleApp {
     }
 
     public static void SampleUserTest(PostgresqlConnectionProvider pgConProvider) {
-        User testUser = new User();
+//        User testUser = new User();
 //        testUser.setUid(UUID.fromString("7d95e88a-f10f-4b20-8303-e26db72ddd74"));
 
-        UserDAO userDAO = new UserDAO(testUser, pgConProvider);
+        UserDBImpl userDbImpl = new UserDBImpl(pgConProvider);
 
         //get a user by ID
-        Optional<User> optionalUser = userDAO.getById(UUID.fromString("7d95e88a-f10f-4b20-8303-e26db72ddd74"));
+        Optional<User> optionalUser = userDbImpl.getById(UUID.fromString("7d95e88a-f10f-4b20-8303-e26db72ddd74"));
         System.out.println(optionalUser);
+
+
 
         //overwrite the first name of the user from above (if exists) to "Tyler" if "Kevin" and vice versa
         if (optionalUser.isPresent()) {
-            User theUser =  optionalUser.get();
+            User theUser = optionalUser.get();
 
             if (theUser.getFirstName().equals("Kevin") ) {
                 theUser.setFirstName("Tyler");
@@ -75,7 +77,7 @@ public class SimpleApp {
             }
 
             try {
-                boolean wasUpdated = userDAO.update(theUser);
+                boolean wasUpdated = userDbImpl.update(theUser);
 
                 if (wasUpdated) {
                     System.out.println("The user was updated");
@@ -86,15 +88,26 @@ public class SimpleApp {
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
-
-
         }
 
+        User testUser = new User();
         //find users matching a certain criteria on User object
         testUser.setLastName("Dillon");
-        List<User> users = userDAO.getAll(testUser);
+        List<User> users = userDbImpl.getAll(testUser);
         System.out.println(users);
 
+        //add and delete a user.
+        User newUser = new User("Test", "Person", "beareamis@gmail.com", "testPassword123");
+        UUID newUserId = userDbImpl.add(newUser);
+        System.out.printf("user created: uuid=%s\n", newUserId.toString());
+
+
+        try {
+            userDbImpl.deleteById(newUserId);
+            System.out.printf("user deleted: uuid=%s\n", newUserId.toString());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     @SuppressWarnings("unused")
