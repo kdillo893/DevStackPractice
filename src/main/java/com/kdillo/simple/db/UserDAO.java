@@ -1,6 +1,6 @@
 package com.kdillo.simple.db;
 
-import com.kdillo.simple.datamodel.User;
+import com.kdillo.simple.entities.User;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

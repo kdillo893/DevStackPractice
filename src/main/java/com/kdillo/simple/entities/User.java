@@ -1,4 +1,4 @@
-package com.kdillo.simple.datamodel;
+package com.kdillo.simple.entities;
 
 import com.kdillo.simple.SimpleApp;
 
@@ -12,7 +12,6 @@ import java.util.UUID;
 /**
  * POJO User
  */
-@SuppressWarnings("unused")
 public class User {
     private static final int SALT_LENGTH = 32;
 

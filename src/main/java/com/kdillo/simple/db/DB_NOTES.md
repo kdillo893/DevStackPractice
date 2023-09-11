@@ -11,6 +11,6 @@ Found a document here which reminds me of some things in previous business apps:
 Per-table, should create a set of classes referring to data rows.
 
 Example would be User for the users table:
-1. User = class which holds data used by business logic; these will be in com.kdillo.simple.datamodel
+1. User = class which holds data used by business logic; these will be in com.kdillo.simple.entities
 2. DataAccessObject = Use this to as gateway between business logic and database logic
 3. UserDAOImpl = contains the DB connection mechanisms for the .... why do I need to do this?
