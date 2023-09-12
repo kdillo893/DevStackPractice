@@ -44,11 +44,16 @@ public class SimpleApp {
             //abstracted connection provider, which spins up new DB connections;
             PostgresqlConnectionProvider pgConProvider = new PostgresqlConnectionProvider(props);
 
-//            DummyRun(pgConProvider);
-
             SampleUserTest(pgConProvider);
 
             //main loop
+            boolean continueLooping = true;
+            int i = 0;
+            while (continueLooping) {
+
+
+            }
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -63,7 +68,6 @@ public class SimpleApp {
         //get a user by ID
         Optional<User> optionalUser = userDbImpl.getById(UUID.fromString("7d95e88a-f10f-4b20-8303-e26db72ddd74"));
         System.out.println(optionalUser);
-
 
 
         //overwrite the first name of the user from above (if exists) to "Tyler" if "Kevin" and vice versa
@@ -110,99 +114,6 @@ public class SimpleApp {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-    }
-
-    @SuppressWarnings("unused")
-    public static void DummyRun(PostgresqlConnectionProvider pgConProvider) {
-        //just a dummy run to see if I can make the database access work.
-
-        try (Connection conn = pgConProvider.getConnection()) {
-
-            //getting a user from the users table, print all the info from the rows returned.
-            Statement st = conn.createStatement();
-            ResultSet rs = st.executeQuery("SELECT * FROM users WHERE email = 'kdillo893@gmail.com'");
-            while (rs.next()) {
-
-                //getting values for each of the columns: uid, first_name, last_name, email, email, created, updated, pass_hash, pass_salt.
-
-                String uid = rs.getString("uid");
-                String fname = rs.getString("first_name");
-                String lname = rs.getString("last_name");
-                String email = rs.getString("email");
-                Date created = rs.getDate("created");
-                Date updated = rs.getDate("updated");
-                String passHash = rs.getString("pass_hash");
-                String passSalt = rs.getString("pass_salt");
-
-                System.out.printf("uid=%s, fname=%s, lname=%s, email=%s, created=%s, updated=%s, passHash=%s, passSalt=%s\n", uid, fname, lname, email, created, updated, passHash, passSalt);
-            }
-
-            rs.close();
-            st.close();
-
-            //        conn.close();
-            //        conn = createNewDbConnection();
-
-            //testing to update the passHash of my user row with an update statement.rAN
-            //make a password hash out of random salt
-            String newSalt = randomString(32);
-            String passHash = digestMessageWithSHA512("silly-Thing123;xD");
-
-            UUID myUid = UUID.fromString("7d95e88a-f10f-4b20-8303-e26db72ddd74");
-            PreparedStatement pst = conn.prepareStatement("update users set pass_hash = ?, pass_salt = ? where uid = ? ;;");
-
-            pst.setString(1, passHash);
-            pst.setString(2, newSalt);
-            pst.setObject(3, myUid);
-
-            //execute update, returns just the number of effected rows.
-            int rowsUpdated = pst.executeUpdate();
-
-            if (rowsUpdated > 0) {
-                System.out.printf("rowsUpdated=%d, passHash=%s, passSalt=%s, UUID=%s", rowsUpdated, passHash, newSalt, myUid);
-            }
-
-            rs.close();
-            st.close();
-
-        //can handle sqlexception differently later
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    @Deprecated
-    /**
-     * Got from reference online; should move this to where it will be relevant (either User or different file later)
-     * @param message String, the message to be digested
-     * @return the digested message in the given hashing algorithm; for SHA512, just doing to 32chars.
-     */
-    protected static String digestMessageWithSHA512(String message) {
-
-        try {
-            MessageDigest md = MessageDigest.getInstance(SHA512);
-
-            byte[] messageDigest = md.digest(message.getBytes());
-
-            //convert byte into signum representation? seems like this is for proper char bytesize conversion.
-            //converts the very large value into string simply
-            BigInteger no = new BigInteger(1, messageDigest);
-            StringBuilder hashtextSb = new StringBuilder(no.toString(16));
-
-            //if the hash is too small, fill with 0's
-            while(hashtextSb.length() < 32) hashtextSb.insert(0, '0');
-
-            return hashtextSb.toString();
-
-        } catch (NoSuchAlgorithmException ex) {
-            System.err.print("Couldn't find algorithm for SHA512");
-            throw new RuntimeException(ex);
-        } catch (Exception ex) {
-           // unknown
-        }
-
-
-        return null;
     }
 
     public static String randomString(int len){
