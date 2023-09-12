@@ -44,7 +44,7 @@ public class SimpleApp {
             while (continueLooping) {
 
                 //if interrupted, do change to stop looping
-
+                Thread.sleep(1000);
             }
 
         } catch (Exception ex) {

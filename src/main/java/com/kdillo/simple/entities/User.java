@@ -116,15 +116,14 @@ public class User {
     public void setPassword(String password) {
         this.password = password;
     }
-    public boolean hasPassword() { return !this.password.isEmpty(); }
+
+    public boolean hasPassword() { return this.password != null && !this.password.isEmpty(); }
 
     public String getPassHash() {
         return pass_hash;
     }
 
-    public String getPassSalt() {
-        return pass_salt;
-    }
+    public String getPassSalt() { return pass_salt; }
 
     public void generateNewSalt() {
         this.pass_salt = SimpleApp.randomString(SALT_LENGTH);

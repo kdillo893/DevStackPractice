@@ -28,36 +28,66 @@ public class UserDBImpl {
         this.connectionProvider = connectionProvider;
     }
 
-    public List<User> getAll(User obj) {
+    private List<User> getUsersFromResultSet(ResultSet resultSet) throws SQLException {
+        List<User> users = new ArrayList<>();
+
+        while (resultSet.next()) {
+
+            //getting all the columns and setting user object.
+            User aUser = new User(UUID.fromString(resultSet.getString(1)),
+                    resultSet.getString(2),
+                    resultSet.getString(3),
+                    resultSet.getString(4),
+                    resultSet.getDate(5),
+                    resultSet.getDate(6),
+                    resultSet.getString(7),
+                    resultSet.getString(8));
+
+            users.add(aUser);
+        }
+
+        return users;
+    }
+
+    public List<User> getAll(User user) {
+        try {
+            Connection conn = this.connectionProvider.getConnection();
+
+            //TODO: insert where logic depending on the parameters;
+            String sqlQuery = "SELECT uid, first_name, last_name, email, created, updated, pass_hash, pass_salt FROM users" +
+                    " WHERE last_name = ? " +
+                    " LIMIT " + RETRIEVE_LIMIT + " ;";
+            PreparedStatement pStatement = conn.prepareStatement(sqlQuery);
+            pStatement.setString(1, user.getLastName());
+
+            ResultSet resultSet = pStatement.executeQuery();
+
+            List<User> users = getUsersFromResultSet(resultSet);
+            return users;
+        } catch (SQLException sqlException) {
+            LOGGER.debug("SQL Exception, bad query getting all Users");
+            sqlException.printStackTrace();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return new ArrayList<>();
+    }
+
+    public List<User> getAll() {
 
         try {
             Connection conn = this.connectionProvider.getConnection();
 
             //TODO: insert where logic depending on the parameters
             String sqlQuery = "SELECT uid, first_name, last_name, email, created, updated, pass_hash, pass_salt FROM users" +
-                    " " +
                     " LIMIT " + RETRIEVE_LIMIT + " ;";
             PreparedStatement pStatement = conn.prepareStatement(sqlQuery);
 
-            ResultSet rs = pStatement.executeQuery();
+            ResultSet resultSet = pStatement.executeQuery();
 
-            List<User> theList = new ArrayList<>();
-            while (rs.next()) {
-
-                //getting all the columns and setting user object.
-                User aUser = new User(UUID.fromString(rs.getString(1)),
-                        rs.getString(2),
-                        rs.getString(3),
-                        rs.getString(4),
-                        rs.getDate(5),
-                        rs.getDate(6),
-                        rs.getString(7),
-                        rs.getString(8));
-
-                theList.add(aUser);
-            }
-
-            return theList;
+            List<User> users = getUsersFromResultSet(resultSet);
+            return users;
         } catch (SQLException sqlException) {
             LOGGER.debug("SQL Exception, bad query getting all Users");
             sqlException.printStackTrace();
@@ -78,7 +108,7 @@ public class UserDBImpl {
 
             ResultSet resultSet = preparedStatement.executeQuery();
 
-            while (resultSet.next()) {
+            if (resultSet.next()) {
                 //getting all the columns and setting user object.
                 return Optional.of(new User(UUID.fromString(resultSet.getString(1)),
                         resultSet.getString(2),
@@ -154,35 +184,38 @@ public class UserDBImpl {
         if (obj.getUid() == null)
             return false;
 
-        //TODO: add update to password logic (needs some stuff to generate hash)
         //if no updatable attributes to set, return false
         if ( !(obj.getLastName() != null
                 || obj.getFirstName() != null
-                || obj.getEmail() != null)
+                || obj.getEmail() != null
+                || obj.hasPassword())
         )
             return false;
 
-        //retrieve the user info, update if exists
         Optional<User> userInDb = this.getById(obj.getUid());
         if (userInDb.isEmpty())
             return false;
 
         User updateUserObj = userInDb.get();
-        if (obj.getFirstName() != null) updateUserObj.setFirstName(obj.getFirstName());
-        if (obj.getLastName() != null) updateUserObj.setLastName(obj.getLastName());
-        if (obj.getEmail() != null) updateUserObj.setEmail(obj.getEmail());
 
+        obj.setUid(updateUserObj.getUid());
+        if (obj.getFirstName() == null) obj.setFirstName(updateUserObj.getFirstName());
+        if (obj.getLastName() == null) obj.setLastName(updateUserObj.getLastName());
+        if (obj.getEmail() == null) obj.setEmail(updateUserObj.getEmail());
+        if (obj.hasPassword()) {
+            obj.calculatePassHashWithNewSalt();
+        }
 
         try {
             Connection conn = this.connectionProvider.getConnection();
+            conn.setAutoCommit(false);
             String statementString = "UPDATE " + USERS_TABLE_NAME +
                     " SET" +
                     " (first_name, last_name, email, updated)" +
-                    " = (?, ?, ?, now() )" +
+                    " = (?, ?, ?, now())" +
                     " WHERE uid = ?";
             PreparedStatement pStatement = conn.prepareStatement(statementString);
 
-            //setting attributes of prepared statement 1=fn, 2=ln, 3=email, 4=uid
             pStatement.setString(1, obj.getFirstName());
             pStatement.setString(2, obj.getLastName());
             pStatement.setString(3, obj.getEmail());
@@ -190,8 +223,19 @@ public class UserDBImpl {
 
             int effectedLines = pStatement.executeUpdate();
 
+            //are we also updating the password?
+            if (obj.hasPassword()) {
+                statementString = "UPDATE " + USERS_TABLE_NAME +
+                        " SET (pass_hash, pass_salt, updated) = (?, ?, now()) WHERE uid = ?";
+                pStatement = conn.prepareStatement(statementString);
+                pStatement.setString(1, obj.getPassHash());
+                pStatement.setString(2, obj.getPassSalt());
+                pStatement.setObject(3, obj.getUid());
+            }
+
             //autocommit is enabled, can turn it off if I want.
-//            conn.commit();
+            conn.commit();
+            conn.setAutoCommit(true);
 
             return effectedLines >= 0;
         } catch (SQLException sqlException) {
@@ -208,7 +252,7 @@ public class UserDBImpl {
         return deleteById(obj.getUid());
     }
 
-    public boolean deleteById(UUID uuid) throws Exception {
+    public boolean deleteById(UUID uuid) {
 
         if (uuid == null)
             return false;
