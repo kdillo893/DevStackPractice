@@ -185,7 +185,7 @@ public class UserDBImpl {
             return false;
 
         //if no updatable attributes to set, return false
-        if ( !(obj.getLastName() != null
+        if (!(obj.getLastName() != null
                 || obj.getFirstName() != null
                 || obj.getEmail() != null
                 || obj.hasPassword())

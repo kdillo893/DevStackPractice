@@ -117,13 +117,17 @@ public class User {
         this.password = password;
     }
 
-    public boolean hasPassword() { return this.password != null && !this.password.isEmpty(); }
+    public boolean hasPassword() {
+        return this.password != null && !this.password.isEmpty();
+    }
 
     public String getPassHash() {
         return pass_hash;
     }
 
-    public String getPassSalt() { return pass_salt; }
+    public String getPassSalt() {
+        return pass_salt;
+    }
 
     public void generateNewSalt() {
         this.pass_salt = SimpleApp.randomString(SALT_LENGTH);
@@ -154,7 +158,7 @@ public class User {
             StringBuilder hashTextSb = new StringBuilder(no.toString(16));
 
             //if the hash is too small, fill with 0's
-            while(hashTextSb.length() < 32) hashTextSb.insert(0, '0');
+            while (hashTextSb.length() < 32) hashTextSb.insert(0, '0');
 
             this.pass_hash = hashTextSb.toString();
 

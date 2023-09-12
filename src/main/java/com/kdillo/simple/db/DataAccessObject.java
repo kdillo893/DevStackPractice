@@ -8,8 +8,11 @@ import java.util.UUID;
 public interface DataAccessObject<T> {
 
     Optional<T> get(UUID uuid);
+
     List<T> getAll();
+
     void save(T t);
+
     void update(T t, Object... objs);
 
     void delete(T t);

@@ -26,7 +26,7 @@ public class SimpleApp {
 
     private static Properties props = null;
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
 
         try {
             loadApplicationProperties();
@@ -65,9 +65,9 @@ public class SimpleApp {
         if (optionalUser.isPresent()) {
             User theUser = optionalUser.get();
 
-            if (theUser.getFirstName().equals("Kevin") ) {
+            if (theUser.getFirstName().equals("Kevin")) {
                 theUser.setFirstName("Tyler");
-            } else if (theUser.getFirstName().equals("Tyler") ) {
+            } else if (theUser.getFirstName().equals("Tyler")) {
                 theUser.setFirstName("Kevin");
             }
 
@@ -107,9 +107,9 @@ public class SimpleApp {
         }
     }
 
-    public static String randomString(int len){
+    public static String randomString(int len) {
         StringBuilder sb = new StringBuilder(len);
-        for (int i = 0; i < len; i++){
+        for (int i = 0; i < len; i++) {
             sb.append(ALPHANUMERIC.charAt(rnd.nextInt(ALPHANUMERIC.length())));
         }
 
