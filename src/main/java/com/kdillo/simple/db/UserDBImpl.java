@@ -62,8 +62,7 @@ public class UserDBImpl {
 
             ResultSet resultSet = pStatement.executeQuery();
 
-            List<User> users = getUsersFromResultSet(resultSet);
-            return users;
+            return getUsersFromResultSet(resultSet);
         } catch (SQLException sqlException) {
             LOGGER.debug("SQL Exception, bad query getting all Users");
             sqlException.printStackTrace();
@@ -86,8 +85,7 @@ public class UserDBImpl {
 
             ResultSet resultSet = pStatement.executeQuery();
 
-            List<User> users = getUsersFromResultSet(resultSet);
-            return users;
+            return getUsersFromResultSet(resultSet);
         } catch (SQLException sqlException) {
             LOGGER.debug("SQL Exception, bad query getting all Users");
             sqlException.printStackTrace();
