@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@SuppressWarnings("unused")
 public interface DataAccessObject<T> {
 
     Optional<T> get(UUID uuid);

@@ -9,21 +9,14 @@ import org.apache.logging.log4j.Logger;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 
-import java.sql.*;
 import java.util.UUID;
 
 public class SimpleApp {
-
-    private static final String SHA512 = "SHA512";
-
     private static final Logger LOGGER = LogManager.getLogger(SimpleApp.class);
 
     @SuppressWarnings("SpellCheckingInspection")
@@ -48,9 +41,9 @@ public class SimpleApp {
 
             //main loop
             boolean continueLooping = true;
-            int i = 0;
             while (continueLooping) {
 
+                //if interrupted, do change to stop looping
 
             }
 
@@ -60,8 +53,6 @@ public class SimpleApp {
     }
 
     public static void SampleUserTest(PostgresqlConnectionProvider pgConProvider) {
-//        User testUser = new User();
-//        testUser.setUid(UUID.fromString("7d95e88a-f10f-4b20-8303-e26db72ddd74"));
 
         UserDBImpl userDbImpl = new UserDBImpl(pgConProvider);
 
@@ -110,7 +101,7 @@ public class SimpleApp {
             boolean userWasDeleted = userDbImpl.deleteById(newUserId);
             System.out.printf("user %s deleted: uuid=%s\n",
                     userWasDeleted ? "was" : "was NOT",
-                    newUserId.toString());
+                    newUserId);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
