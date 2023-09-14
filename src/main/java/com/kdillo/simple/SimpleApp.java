@@ -1,10 +1,14 @@
 package com.kdillo.simple;
 
-import com.kdillo.simple.entities.User;
 import com.kdillo.simple.db.PostgresqlConnectionProvider;
 import com.kdillo.simple.db.UserDBImpl;
+import com.kdillo.simple.entities.User;
+
+import com.kdillo.simple.rest.UserController;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -13,9 +17,9 @@ import java.security.SecureRandom;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
-
 import java.util.UUID;
 
+@SpringBootApplication
 public class SimpleApp {
     private static final Logger LOGGER = LogManager.getLogger(SimpleApp.class);
 
@@ -25,8 +29,10 @@ public class SimpleApp {
     public static final SecureRandom rnd = new SecureRandom();
 
     private static Properties props = null;
+    public static PostgresqlConnectionProvider pgConProvider = null;
 
-    public static void main(String[] args) {
+
+    public static void main(String[] args) throws InterruptedException {
 
         try {
             loadApplicationProperties();
@@ -35,17 +41,15 @@ public class SimpleApp {
 //            PGSimpleDataSource ds = new PGSimpleDataSource();
 
             //abstracted connection provider, which spins up new DB connections;
-            PostgresqlConnectionProvider pgConProvider = new PostgresqlConnectionProvider(props);
+            pgConProvider = new PostgresqlConnectionProvider(props);
 
-            SampleUserTest(pgConProvider);
+//            SampleUserTest(pgConProvider);
+
+
 
             //main loop
-            boolean continueLooping = true;
-            while (continueLooping) {
+            SpringApplication.run(SimpleApp.class, args);
 
-                //if interrupted, do change to stop looping
-                Thread.sleep(1000);
-            }
 
         } catch (Exception ex) {
             ex.printStackTrace();
