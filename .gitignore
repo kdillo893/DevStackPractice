@@ -28,3 +28,11 @@ hs_err_pid*
 #target directory from maven compile
 target/*
 target/**/*
+/target/
+
+#ignore some eclipse garbage
+.classpath
+.project
+
+#misc.
+.settings/*
