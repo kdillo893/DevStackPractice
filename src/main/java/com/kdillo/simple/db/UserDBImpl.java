@@ -260,10 +260,15 @@ public class UserDBImpl {
 
         try {
             Connection conn = this.connectionProvider.getConnection();
+            conn.setAutoCommit(true);
             PreparedStatement preparedStatement = conn.prepareStatement("DELETE FROM users WHERE uid = ?");
             preparedStatement.setObject(1, uuid);
 
-            return preparedStatement.execute();
+            boolean execResult = preparedStatement.execute();
+            int updatedCount = preparedStatement.getUpdateCount();
+            
+            return updatedCount >= 0;
+            
         } catch (SQLException sqlException) {
             LOGGER.debug("SQL Exception, meaning bad query.");
             sqlException.printStackTrace();

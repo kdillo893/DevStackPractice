@@ -34,5 +34,9 @@ target/**/*
 .classpath
 .project
 
+#ignore some netbeans garbage
+nb-configuration.xml
+
 #misc.
 .settings/*
+.settings/.jsdtscope

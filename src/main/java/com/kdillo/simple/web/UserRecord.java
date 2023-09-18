@@ -1,4 +1,4 @@
-package com.kdillo.simple.rest;
+package com.kdillo.simple.web;
 
 import java.util.UUID;
 
