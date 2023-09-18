@@ -1,15 +1,5 @@
 package com.kdillo.simple;
 
-import com.kdillo.simple.db.PostgresqlConnectionProvider;
-import com.kdillo.simple.db.UserDBImpl;
-import com.kdillo.simple.entities.User;
-
-import com.kdillo.simple.rest.UserController;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,11 +9,16 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
 
-@SpringBootApplication
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.kdillo.simple.db.PostgresqlConnectionProvider;
+import com.kdillo.simple.db.UserDBImpl;
+import com.kdillo.simple.entities.User;
+
 public class SimpleApp {
     private static final Logger LOGGER = LogManager.getLogger(SimpleApp.class);
 
-    @SuppressWarnings("SpellCheckingInspection")
     private static final String ALPHANUMERIC = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     //initialize a random number generator when the app launches
     public static final SecureRandom rnd = new SecureRandom();
@@ -43,14 +38,15 @@ public class SimpleApp {
             //abstracted connection provider, which spins up new DB connections;
             pgConProvider = new PostgresqlConnectionProvider(props);
 
-//            SampleUserTest(pgConProvider);
-
-
+            SampleUserTest(pgConProvider);
 
             //main loop
-            SpringApplication.run(SimpleApp.class, args);
-
-
+            //for jakarta ee (or servlets and other things; using tomcat)
+            //start up the servlet?? how?
+            while (true) {
+                System.out.println("listening");
+                Thread.sleep(5000);
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
