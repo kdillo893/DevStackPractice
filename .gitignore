@@ -28,5 +28,15 @@ hs_err_pid*
 #target directory from maven compile
 target/*
 target/**/*
-/nbactions.xml
-/nb-configuration.xml
+/target/
+
+#ignore some eclipse garbage
+.classpath
+.project
+
+#ignore some netbeans garbage
+nb-configuration.xml
+
+#misc.
+.settings/*
+.settings/.jsdtscope

@@ -1,8 +1,9 @@
-package com.kdillo.simple.rest;
+package com.kdillo.simple.web;
 
 import com.kdillo.simple.SimpleApp;
 import com.kdillo.simple.db.UserDBImpl;
 import com.kdillo.simple.entities.User;
+import com.kdillo.simple.web.UserRecord;
 
 import java.util.Optional;
 import java.util.UUID;
