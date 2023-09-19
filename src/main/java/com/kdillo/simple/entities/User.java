@@ -43,6 +43,10 @@ public class User {
 
     /**
      * constructor for user creation (no id, timestamps, or pass hash/salt)
+     * @param first_name
+     * @param last_name
+     * @param email
+     * @param password
      */
     public User(String first_name, String last_name, String email, String password) {
         this.first_name = first_name;
@@ -53,6 +57,14 @@ public class User {
 
     /**
      * constructor for retrieval from DB: populate fields from columns.
+     * @param uid
+     * @param first_name
+     * @param email
+     * @param last_name
+     * @param updated
+     * @param created
+     * @param pass_salt
+     * @param pass_hash
      */
     public User(UUID uid, String first_name, String last_name, String email, Date created, Date updated, String pass_hash, String pass_salt) {
         this.uid = uid;
