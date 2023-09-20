@@ -45,8 +45,21 @@ be called during the loop described above.
 
 Specifics might be less clear...
 
-### Tomcat
+### Tomcat/TomEE/Glassfish Web Containers
 This uses Servlets and calls to JSP files to direct the server to perform actions and return stuff.
 
 Need to have installed Apache Tomcat on the machine where the server is running and provide 
 environment variables ```CATALINA_HOME``` and ```JAVA_HOME``` to communicate and route requests.
+
+Instead of initializing an Http Server and configuring everything yourself (including listeners and handlers),
+you can use a web container such as Tomcat/TomEE which will redirect the requests to a Servlet or return a given page.
+In order for a web container like Glassfish/Tomcat to know "what you want to happen" with requests that are sent
+to your server, a "Deployment Descriptor" like "webapp/WEB-INF/web.xml" will detail what servlets are mapped where,
+which pages and resources are simply served without processing, and more. 
+
+### Http Server with Handlers and Controllers
+The more complicated manner of handling back end requests is to establish a server on your device
+which will stay alive, listen to requests on a given port and configuration (domain/ip etc), and listen for
+what is requesting the application at certain context levels to forward to handlers and controllers
+for processing. This method of back end implementation spends a LOT of time to get everything running and
+will be more difficult to port between machines.

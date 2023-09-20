@@ -22,7 +22,11 @@
         <a href="api">Servlet Button</a>
 
         <h2>Maybe this is different</h2>
+<<<<<<< Updated upstream
         <form action="api" method="GET">
+=======
+        <form action="RequestServlet" method="GET">
+>>>>>>> Stashed changes
             <input type="text" name="uid">
             <input type="submit" value="login">
         </form>
