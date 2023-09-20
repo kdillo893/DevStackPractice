@@ -1,6 +1,9 @@
 package com.kdillo.simple.entities;
 
 import com.kdillo.simple.SimpleApp;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
+import java.math.BigDecimal;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -214,6 +217,17 @@ public class User {
                 ", pass_hash='" + pass_hash + '\'' +
                 ", pass_salt='" + pass_salt + '\'' +
                 '}';
+    }
+    
+    public JsonObject toJson() {
+        return Json.createObjectBuilder()
+                .add("uid", uid.toString())
+                .add("first_name", first_name)
+                .add("last_name", last_name)
+                .add("email", email)
+                .add("created", created.toString())
+                .add("updated", updated.toString())
+                .build();
     }
 
 }

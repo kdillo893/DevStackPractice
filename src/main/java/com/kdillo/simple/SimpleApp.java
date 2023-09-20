@@ -15,7 +15,15 @@ import org.apache.logging.log4j.Logger;
 import com.kdillo.simple.db.PostgresqlConnectionProvider;
 import com.kdillo.simple.db.UserDBImpl;
 import com.kdillo.simple.entities.User;
+import com.sun.net.httpserver.HttpServer;
+import java.net.InetSocketAddress;
 
+/**
+ * Removing in favor of Servlet architecture with JEE and Glassfish
+ * @author kdill
+ * @deprecated
+ */
+@Deprecated
 public class SimpleApp {
     private static final Logger LOGGER = LogManager.getLogger(SimpleApp.class);
 
@@ -41,12 +49,10 @@ public class SimpleApp {
             SampleUserTest(pgConProvider);
 
             //main loop
-            //for jakarta ee (or servlets and other things; using tomcat)
-            //start up the servlet?? how?
-            while (true) {
-                System.out.println("listening");
-                Thread.sleep(5000);
-            }
+//            HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
+//            server.createContext("/sample", new MyHandler());
+//            server.setExecutor(null);
+//            server.start();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
