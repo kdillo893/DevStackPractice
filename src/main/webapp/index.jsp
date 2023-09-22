@@ -22,8 +22,8 @@
         <a href="api">Servlet Button</a>
 
         <h2>Maybe this is different</h2>
-        <form action="api" method="GET">
-            <input type="text" name="uid">
+        <form action="api/user" method="GET">
+            <input type="text" name="id">
             <input type="submit" value="login">
         </form>
     </body>

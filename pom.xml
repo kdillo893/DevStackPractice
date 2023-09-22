@@ -30,7 +30,7 @@
         <maven.compiler.release>17</maven.compiler.release>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-        <jakartaee-api.version>9.1.0</jakartaee-api.version>
+        <jakartaee-api.version>10.0.0</jakartaee-api.version>
         <compiler-plugin.version>3.11.0</compiler-plugin.version>
         <war-plugin.version>3.3.2</war-plugin.version>
         <cargo.version>1.10.7</cargo.version>
