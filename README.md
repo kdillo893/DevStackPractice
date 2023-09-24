@@ -27,22 +27,6 @@ For "from scratch" database settings, modify the following files within your pos
       1. example ```CREATE ROLE my_db_role WITH PASSWORD 'testdb*123' LOGIN SUPERUSER CREATEDB;```
    5. exit from the postgres psql and user session and test logging in with your role/user with password using ```psql -U [role/user] -d [dbname]``` to see if your user can access the things specified.
 
-## including dependencies with runtime
-Taking notes from https://howtodoinjava.com/java-examples/set-classpath-command-line/ on some of the basics for running java applications from commandline without an IDE managing all those tasks.
-When running from command line, you need to include the dependencies from external libraries (namely postgresql in this case) on the classpath. This can be done within IDE, but if I wanted to run the application OUTSIDE an IDE, I would need to know how to include various dependencies needed for runtime.
-
-The way to run this is to include in the classpath all dependency jars or source directories (with the base being "where the classes are contained"). An example of the run with java in terminal on unix would be this:
-
-``java -cp target/classes:$MVN_REPO/org/postgresql/postgresql/42.6.0/postgresql-42.6.0.jar com.kdillo.simple.SimpleApp``
-
-This specifies that I will include in the classpath with the -cp option all the compiled classes from the "target" folder for my application and the postgresql jar and run the main method of the class ```SimpleApp```. Alternatively, you can set a path or classpath environment variable which would include all the dependencies and compiled application classes for the project. The way to do this in unix is:
-
-```export CLASSPATH=[the stuff above for -cp option]```
-
-If you have a directory with a set amount of jar or class files you wish to include, the classpath is capable of using wildcards. Classes tend to be referenced from the root of the directory where they are referenced from, while the jar needs to be explicitly included, or can be wild-carded with *.
-
-```export CLASSPATH=extra/classes:extra/jars/*```
-
 ## maven 
 I'm mainly using maven to import and download jars for runtime rather than dealing with "finding a dependency around the web and downloading separately".
 
@@ -62,8 +46,63 @@ To package things that are currently within the target folder as a jar, use
 
 ... I think there are more that could be useful, like `compile` or otherwise, but not sure how those function.
 
+## web container setup
+In order to have the servlets load, a web container directs traffic to the packaged set of classes which handle requests.
+The web.xml is the deployment descriptor for which endpoints in the overall context direct to where.
+
+### Glassfish
+Install from https://glassfish.org/download.html .
+
+Maven pom has information to point to the installation location for glassfish.
+Right now I'm just running it from Netbeans and specifying the server to launch.
+
+starting and stopping the glassfish server:
+Start: (from the installation location) asadmin start-domain <domainName>
+Shutdown: (from the installation location) asadmin stop-domain <domainName>
+
+deploying the war to the domain:
+asadmin deploy <thewarjar>
+asadmin undeploy <thewarjar name without file extension>
+
+### Tomcat/TomEE
+Google it...
+
+Set envs to CATALINA_HOME to the installation location, JAVA_HOME to the java sdk base.
+
+Starting and stopping from CATALINA_HOME/bin/startup.sh and CATALINA_HOME/bin/shutdown.sh
+
+In order to deploy servlets to tomcat, need the resources to be compiled and placed in the tomcat home to replace the default servlet.
+To do this, package the contents into a war/jar using maven package, then put the war into CATALINA_HOME/webapp.
+
+Options to autoDeploy or deployOnStartup can make it easier to manage...
+
+https://tomcat.apache.org/tomcat-10.1-doc/deployer-howto.html
+
 
 ## running
+
+
+## old runtime
+The runtime is currently operating with Servlets being handled through a web container. If I decide to go back to "run my own Http Handling garbage", the below will apply
+
+### including dependencies with runtime
+Taking notes from https://howtodoinjava.com/java-examples/set-classpath-command-line/ on some of the basics for running java applications from commandline without an IDE managing all those tasks.
+When running from command line, you need to include the dependencies from external libraries (namely postgresql in this case) on the classpath. This can be done within IDE, but if I wanted to run the application OUTSIDE an IDE, I would need to know how to include various dependencies needed for runtime.
+
+The way to run this is to include in the classpath all dependency jars or source directories (with the base being "where the classes are contained"). An example of the run with java in terminal on unix would be this:
+
+``java -cp target/classes:$MVN_REPO/org/postgresql/postgresql/42.6.0/postgresql-42.6.0.jar com.kdillo.simple.SimpleApp``
+
+This specifies that I will include in the classpath with the -cp option all the compiled classes from the "target" folder for my application and the postgresql jar and run the main method of the class ```SimpleApp```. Alternatively, you can set a path or classpath environment variable which would include all the dependencies and compiled application classes for the project. The way to do this in unix is:
+
+```export CLASSPATH=[the stuff above for -cp option]```
+
+If you have a directory with a set amount of jar or class files you wish to include, the classpath is capable of using wildcards. Classes tend to be referenced from the root of the directory where they are referenced from, while the jar needs to be explicitly included, or can be wild-carded with *.
+
+```export CLASSPATH=extra/classes:extra/jars/*```
+
+
+### running the main
 In order to run the application, follow the above steps for adding required to the classpath, then run
 
 `java com.kdillo.simple.SimpleApp`
