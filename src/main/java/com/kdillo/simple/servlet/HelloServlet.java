@@ -7,7 +7,6 @@ package com.kdillo.simple.servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,7 +15,6 @@ import jakarta.servlet.http.HttpServletResponse;
  *
  * @author kdill
  */
-//@WebServlet(value="/hello")
 public class HelloServlet extends HttpServlet {
 
     /**
