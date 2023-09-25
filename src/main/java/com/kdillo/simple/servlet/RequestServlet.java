@@ -8,6 +8,7 @@ import jakarta.json.JsonArrayBuilder;
 import jakarta.json.JsonObject;
 
 import jakarta.json.JsonObjectBuilder;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -53,7 +54,7 @@ public class RequestServlet extends HttpServlet {
      * @throws IOException 
      */
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         
         //my "get" method will need to parse by "query multiple" or "query by ID"        
         
@@ -98,6 +99,29 @@ public class RequestServlet extends HttpServlet {
     }
 
     @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        
+        
+        
+        super.doPost(req, resp); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/OverriddenMethodBody
+    }
+
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        
+        //create or update an entity, these will have body describing the object...
+        
+        
+        
+        super.doPut(req, resp); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/OverriddenMethodBody
+    }
+
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        super.doDelete(req, resp); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/OverriddenMethodBody
+    }
+
+    @Override
     public void destroy() {
         pgConProvider = null;
         props = null;
@@ -125,6 +149,8 @@ public class RequestServlet extends HttpServlet {
     private void getMultiple(HttpServletRequest request, HttpServletResponse response) throws IOException {
         
         String pathInfo = request.getPathInfo();
+        
+        //get request means that we must have this as parameters, not body
         
         JsonObjectBuilder jsonBuilder = Json.createObjectBuilder();
         if (pathInfo.startsWith("/users")) {
