@@ -48,21 +48,23 @@ public class UserDBImpl {
 
         return users;
     }
-
-    public List<User> getAll(User user) {
+    
+    public List<User> getAll(User user, int offset, int limit) {
+        List<User> resultList = new ArrayList<>();
+        
         try {
             Connection conn = this.connectionProvider.getConnection();
 
             //TODO: insert where logic depending on the parameters;
             String sqlQuery = "SELECT uid, first_name, last_name, email, created, updated, pass_hash, pass_salt FROM users" +
                     " WHERE last_name = ? " +
-                    " LIMIT " + RETRIEVE_LIMIT + " ;";
+                    " LIMIT " + limit + " OFFSET " + offset + ";";
             PreparedStatement pStatement = conn.prepareStatement(sqlQuery);
             pStatement.setString(1, user.getLastName());
 
             ResultSet resultSet = pStatement.executeQuery();
 
-            return getUsersFromResultSet(resultSet);
+            resultList = getUsersFromResultSet(resultSet);
         } catch (SQLException sqlException) {
             LOGGER.debug("SQL Exception, bad query getting all Users");
             sqlException.printStackTrace();
@@ -70,7 +72,12 @@ public class UserDBImpl {
             ex.printStackTrace();
         }
 
-        return new ArrayList<>();
+        return resultList;
+    }
+    
+
+    public List<User> getAll(User user) {
+        return getAll(user, 0, RETRIEVE_LIMIT);
     }
 
     public List<User> getAll() {
