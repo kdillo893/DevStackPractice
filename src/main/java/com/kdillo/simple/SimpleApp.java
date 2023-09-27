@@ -15,8 +15,6 @@ import org.apache.logging.log4j.Logger;
 import com.kdillo.simple.db.PostgresqlConnectionProvider;
 import com.kdillo.simple.db.UserDBImpl;
 import com.kdillo.simple.entities.User;
-import com.sun.net.httpserver.HttpServer;
-import java.net.InetSocketAddress;
 
 /**
  * Removing in favor of Servlet architecture with JEE and Glassfish
