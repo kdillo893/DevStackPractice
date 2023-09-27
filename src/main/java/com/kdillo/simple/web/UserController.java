@@ -4,7 +4,6 @@ import com.kdillo.simple.SimpleApp;
 import com.kdillo.simple.db.UserDBImpl;
 import com.kdillo.simple.entities.User;
 import com.kdillo.simple.web.UserRecord;
-import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
