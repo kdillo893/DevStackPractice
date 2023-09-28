@@ -15,14 +15,15 @@ import org.apache.logging.log4j.Logger;
 import com.kdillo.simple.db.PostgresqlConnectionProvider;
 import com.kdillo.simple.db.UserDBImpl;
 import com.kdillo.simple.entities.User;
+import jakarta.ws.rs.ApplicationPath;
+import jakarta.ws.rs.core.Application;
 
 /**
  * Removing in favor of Servlet architecture with JEE and Glassfish
  * @author kdill
- * @deprecated
  */
-@Deprecated
-public class SimpleApp {
+@ApplicationPath("/rest/api")
+public class SimpleApp extends Application {
     private static final Logger LOGGER = LogManager.getLogger(SimpleApp.class);
 
     private static final String ALPHANUMERIC = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -31,7 +32,6 @@ public class SimpleApp {
 
     private static Properties props = null;
     public static PostgresqlConnectionProvider pgConProvider = null;
-
 
     public static void main(String[] args) throws InterruptedException {
 

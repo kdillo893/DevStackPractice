@@ -4,28 +4,34 @@ import com.kdillo.simple.SimpleApp;
 import com.kdillo.simple.db.UserDBImpl;
 import com.kdillo.simple.entities.User;
 import com.kdillo.simple.web.UserRecord;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
 
-//@RestController
+@Path("users/{uid}")
 public class UserController {
 
     //temp tester finals
     private static final String TEMPLATE = "Hello %s";
     private final AtomicLong COUNTER = new AtomicLong();
 
-//    @GetMapping("/users")
-    public List<UserRecord> getUsers() {
+//    @GET
+//    @Produces("text/json")
+//    public String getUsers() {
+//
+//        return null;
+//    }
 
-        return null;
-    }
-
-//    @GetMapping("/user/{uid}")
-    public UserRecord getUser(/*@PathVariable*/ String uid) {
+    @GET
+    @Produces("text/json")
+    public UserRecord getUser(@PathParam("uid") String uid) {
 
         UUID theUid = UUID.fromString(uid);
 
@@ -52,9 +58,10 @@ public class UserController {
         return null;
     }
 
-//    @DeleteMapping("/user/{uid}")
-    public void deleteUser(/*@PathVariable*/ String uid) {
-
+    @DELETE
+    @Produces("text/json")
+    public void deleteUser(@PathParam("uid") String uid) {
+        System.out.print("hi delete");
     }
 
 }
