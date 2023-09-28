@@ -3,19 +3,19 @@ package com.kdillo.simple.servlet;
 import com.kdillo.simple.db.PostgresqlConnectionProvider;
 import com.kdillo.simple.db.UserDBImpl;
 import com.kdillo.simple.entities.User;
+
 import jakarta.json.Json;
 import jakarta.json.JsonArrayBuilder;
 import jakarta.json.JsonObject;
-
 import jakarta.json.JsonObjectBuilder;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URLDecoder;
@@ -28,7 +28,7 @@ import java.util.UUID;
 /**
  * @author kdill
  */
-//@WebService(name="/api/*")
+@WebServlet(name="RequestServlet", urlPatterns="/api/*")
 public class RequestServlet extends HttpServlet {
 
     private static PostgresqlConnectionProvider pgConProvider;
@@ -68,7 +68,7 @@ public class RequestServlet extends HttpServlet {
         if (pathInfo == null)
             return null;
         
-        List<String> orderedPathParts = new ArrayList<String>();
+        List<String> orderedPathParts = new ArrayList<>();
         try {
             for (var pathPart : pathInfo.split("/")) {
                 orderedPathParts.add(URLDecoder.decode(pathPart, "UTF-8"));
@@ -83,6 +83,44 @@ public class RequestServlet extends HttpServlet {
             orderedPathParts.remove(0);
         
         return orderedPathParts;
+    }
+    
+    private void returnBasicInfo(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        
+        JsonObjectBuilder jsonObject = Json.createObjectBuilder();
+        
+        JsonArrayBuilder jsonArrayBuilder = Json.createArrayBuilder();
+        jsonArrayBuilder.add("/users").add("/users/{id}");
+        
+        jsonObject.add("url", req.getRequestURL().toString());
+        jsonObject.add("baseUri", req.getRequestURI());
+        jsonObject.add("endpoints", jsonArrayBuilder);
+        
+        resp.setContentType("text/json");
+        resp.getWriter().write(jsonObject.build().toString());
+    }
+    
+    private String parseResourceType(List<String> pathParts)  {
+        if (pathParts == null || pathParts.isEmpty())
+            return null;
+        
+        //break out the beginning bit, the ending bit with the weird symbols needs to get deleted...
+        
+        String resourceType = "";
+        
+        String pathPart = pathParts.get(0);
+        resourceType += pathPart;
+        
+        if (pathParts.size() == 1) {    
+            return resourceType;
+        }
+        
+        for (int i = 1 ; i < pathParts.size() - 1; i++) {
+            pathPart = pathParts.get(i);
+            resourceType += "/" + pathPart;
+        }
+        
+        return resourceType;
     }
 
     @Override
@@ -105,41 +143,24 @@ public class RequestServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         //parse the URI
-//        List<String> pathParts = parsePath(request.getPathInfo());
-//        System.out.println(pathParts);
-//        System.out.println(request.getRequestURI());
+        List<String> pathParts = parsePath(request.getPathInfo());
+        String resourceType = parseResourceType(pathParts);
         
-        //the path could contain many different parts...
-        
-        
-        
-        
-        //my "get" method will need to parse by "query multiple" or "query by ID"        
-        String parmId = request.getParameter("id");
-
-        UUID id = null;
-        try {
-            if (parmId != null) {
-                id = UUID.fromString(parmId);
-            }
-        } catch (IllegalArgumentException ilex) {
-
-            response.setContentType("text/html");
-
-            //hello
-            PrintWriter out = response.getWriter();
-            out.println("<html><body>");
-            out.println("<h1>" + "Failed to parse id" + "</h1>");
-            out.println("</body></html>");
-
+        //if pathParts is empty (just reach here with /api), give a "basic info" thing
+        if (resourceType == null) {
+            returnBasicInfo(request,response);
+            
             return;
         }
 
+        UUID id = parseIdFromRequest(pathParts);
+//        System.out.printf("resourceType=%s, id=%s\n", resourceType, id);
+
         //if ID, then "get by Id", else "query by parms"
         if (id != null) {
-            getById(id, request, response);
+            getById(id, resourceType, request, response);
         } else {
-            getMultiple(request, response);
+            getMultiple(resourceType, request, response);
         }
     }
 
@@ -164,19 +185,12 @@ public class RequestServlet extends HttpServlet {
         props = null;
     }
 
-    private void getById(UUID id, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    private void getById(UUID id, String resourceType, HttpServletRequest req, HttpServletResponse resp) throws IOException {
         JsonObjectBuilder jsonBuilder = Json.createObjectBuilder();
         resp.setContentType("text/json");
         Writer out = resp.getWriter();
-
-        String pathInfo = req.getPathInfo();
-        if (pathInfo == null || pathInfo.isBlank()) {
-
-            out.write("{}");
-            return;
-        }
-
-        if (pathInfo.startsWith("/user")) {
+        
+        if (resourceType.equals("users")) {
             UserDBImpl userDbImpl = new UserDBImpl(pgConProvider);
             Optional<User> optUser = userDbImpl.getById(id);
 
@@ -185,21 +199,14 @@ public class RequestServlet extends HttpServlet {
 
         out.write(jsonBuilder.build().toString());
     }
-
-    private void getMultiple(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    
+    private void getMultiple(String resourceType, HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         JsonObjectBuilder jsonBuilder = Json.createObjectBuilder();
         response.setContentType("text/json");
         Writer out = response.getWriter();
-
-        String pathInfo = request.getPathInfo();
-        if (pathInfo == null || pathInfo.isBlank()) {
-
-            out.write("{}");
-            return;
-        }
-
-        if (pathInfo.startsWith("/users")) {
+        
+        if (resourceType.equals("users")) {
             //query by what? just last name for now
 
             User queryUser = new User();
@@ -217,5 +224,26 @@ public class RequestServlet extends HttpServlet {
         }
 
         out.write(jsonBuilder.build().toString());
+    }
+
+    private UUID parseIdFromRequest(List<String> pathParts) {
+        
+        if (pathParts == null)
+            return null;
+        
+        if (pathParts.isEmpty() || pathParts.size() == 1)
+            return null;
+            
+        //try to parse, if can't return null;
+        try {
+            String lastPart = pathParts.get(pathParts.size() - 1);
+            UUID id = UUID.fromString(lastPart);
+            
+            return id;
+        } catch (IllegalArgumentException ilex) {
+
+        }
+        
+        return null;
     }
 }
