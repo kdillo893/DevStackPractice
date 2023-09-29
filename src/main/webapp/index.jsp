@@ -16,15 +16,35 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
         <title>JSP Page</title>
+        <script>
+            function requestUser(data) {
+                let url = "api/users/";
+                url += data.id.value;
+
+                fetch(url)
+                        .then(data => {
+                            return data.json();
+                        })
+                        .then(response => {
+                            console.log(response);
+                        })
+                        .catch(error => {
+                            console.log(error);
+                        });
+
+                return;
+            }
+        </script>
     </head>
     <body>
         <h1><h:outputText value="Hello World!"/></h1>
         <a href="api">Servlet Button</a>
 
         <h2>Maybe this is different</h2>
-        <form action="api/user" method="GET">
+        <form onsubmit="requestUser(this);
+                return false;">
             <input type="text" name="id">
-            <input type="submit" value="login">
+            <input type="submit">
         </form>
     </body>
 </html>

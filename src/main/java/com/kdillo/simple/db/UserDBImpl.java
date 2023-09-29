@@ -10,7 +10,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
-@SuppressWarnings("unused")
 public class UserDBImpl {
     private static final Logger LOGGER = LogManager.getLogger(UserDBImpl.class);
 
