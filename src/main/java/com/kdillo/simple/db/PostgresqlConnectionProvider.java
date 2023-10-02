@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
+import org.postgresql.Driver;
 
 public class PostgresqlConnectionProvider {
 
@@ -27,6 +28,9 @@ public class PostgresqlConnectionProvider {
     }
 
     public Connection getConnection() throws SQLException, ClassNotFoundException {
+        
+        //ensure the postgresql driver is here:
+        Class.forName("org.postgresql.Driver");
 
         Properties dbProps = new Properties();
         dbProps.setProperty("user", dbUser);
