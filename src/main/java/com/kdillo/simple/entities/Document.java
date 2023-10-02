@@ -2,30 +2,36 @@ package com.kdillo.simple.entities;
 
 import jakarta.persistence.*;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 import java.util.UUID;
 
 @Entity
 @Table(name = "documents", schema = "webapp")
-public class Document {
+public class Document implements Serializable {
 
+    @Serial
+    private static final long serialVersionUID = 1L;
     @Id
-    @Column(nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="id", nullable = false)
     private long id;
 
-    @Column
+    @Column(name="uid")
     private UUID uid;
 
-    @Column(nullable = false)
+    @Column(name="doc_url", nullable = false)
     private String doc_url;
 
-    @Column
-    private long parent_id;
+    @Column(name="parent_id", nullable = true)
+    private Long parent_id;
 
     public Document(String doc_url) {
         this.doc_url = doc_url;
     }
 
-    public Document(String doc_url, long parent_id) {
+    public Document(String doc_url, Long parent_id) {
         this.doc_url = doc_url;
         this.parent_id = parent_id;
     }
@@ -54,11 +60,11 @@ public class Document {
         this.doc_url = doc_url;
     }
 
-    public long getParent_id() {
+    public Long getParent_id() {
         return parent_id;
     }
 
-    public void setParent_id(long parent_id) {
+    public void setParent_id(Long parent_id) {
         this.parent_id = parent_id;
     }
 }
