@@ -25,15 +25,17 @@
     
     <!--Properties-->
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.report.sourceEncoding>UTF-8</project.report.sourceEncoding>
+        <cargo.version>1.10.7</cargo.version>
+        <compiler-plugin.version>3.11.0</compiler-plugin.version>
+        <hibernate-core.version>6.3.1.Final</hibernate-core.version>
+        <jakartaee-api.version>10.0.0</jakartaee-api.version>
+        <jakartaee-persistence.version>3.1.0</jakartaee-persistence.version>
         <maven.compiler.release>17</maven.compiler.release>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-        <jakartaee-api.version>10.0.0</jakartaee-api.version>
-        <compiler-plugin.version>3.11.0</compiler-plugin.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.report.sourceEncoding>UTF-8</project.report.sourceEncoding>
         <war-plugin.version>3.3.2</war-plugin.version>
-        <cargo.version>1.10.7</cargo.version>
     </properties>
 
     <!-- dependencies -->
@@ -65,25 +67,31 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <scope>runtime</scope>
+            <type>jar</type>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot -->
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.boot</groupId>-->
-<!--            <artifactId>spring-boot</artifactId>-->
-<!--            <version>3.1.3</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.boot</groupId>-->
-<!--            <artifactId>spring-boot-starter-web</artifactId>-->
-<!--            <version>3.1.3</version>-->
-<!--        </dependency>-->
         <!-- https://mvnrepository.com/artifact/jakarta.platform/jakarta.jakartaee-api -->
         <dependency>
             <groupId>jakarta.platform</groupId>
             <artifactId>jakarta.jakartaee-api</artifactId>
             <version>${jakartaee-api.version}</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.persistence</groupId>
+            <artifactId>jakarta.persistence-api</artifactId>
+            <version>${jakarta-persistence.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/jakarta.json/jakarta.json-api -->
+        <dependency>
+            <groupId>jakarta.json</groupId>
+            <artifactId>jakarta.json-api</artifactId>
+            <version>2.1.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>${hibernate-core.version}</version>
         </dependency>
     </dependencies>
 
@@ -96,14 +104,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${compiler-plugin.version}</version>
             </plugin>
-            <plugin>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>${war-plugin.version}</version>
-                <configuration>
-                    <failOnMissingWebXml>false</failOnMissingWebXml>
-                </configuration>
-            </plugin>
-
             <!-- Execute 'mvn clean package cargo:run' to run the application. -->
             <plugin>
                 <groupId>org.codehaus.cargo</groupId>

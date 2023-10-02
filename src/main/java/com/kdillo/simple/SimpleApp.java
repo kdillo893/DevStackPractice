@@ -1,5 +1,16 @@
 package com.kdillo.simple;
 
+import com.kdillo.simple.db.PostgresqlConnectionProvider;
+import com.kdillo.simple.db.UserDBImpl;
+import com.kdillo.simple.entities.Document;
+import com.kdillo.simple.entities.User;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
+import jakarta.json.JsonObject;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,21 +20,12 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import com.kdillo.simple.db.PostgresqlConnectionProvider;
-import com.kdillo.simple.db.UserDBImpl;
-import com.kdillo.simple.entities.User;
-import jakarta.ws.rs.ApplicationPath;
-import jakarta.ws.rs.core.Application;
-
 /**
  * Removing in favor of Servlet architecture with JEE and Glassfish
  * @author kdill
  */
-@ApplicationPath("/rest/api")
-public class SimpleApp extends Application {
+//@ApplicationPath("/rest/api")
+public class SimpleApp {
     private static final Logger LOGGER = LogManager.getLogger(SimpleApp.class);
 
     private static final String ALPHANUMERIC = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -44,7 +46,19 @@ public class SimpleApp extends Application {
             //abstracted connection provider, which spins up new DB connections;
             pgConProvider = new PostgresqlConnectionProvider(props);
 
-            SampleUserTest(pgConProvider);
+//            SampleUserTest(pgConProvider);
+
+            EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("simple");
+            EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+            entityManager.getTransaction().begin();
+
+            Document document = new Document("https://github.com/kdillo893/simplestFrontToBack/blob/main/README.md");
+
+            entityManager.persist(document);
+            entityManager.getTransaction().commit();
+
+
 
             //main loop
 //            HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
