@@ -63,3 +63,11 @@ which will stay alive, listen to requests on a given port and configuration (dom
 what is requesting the application at certain context levels to forward to handlers and controllers
 for processing. This method of back end implementation spends a LOT of time to get everything running and
 will be more difficult to port between machines.
+
+## Json library analysis
+
+Looking around to improve speed of Json, found a link to a github repository which tested some objects: https://github.com/fabienrenaud/java-json-benchmark
+
+I had been using Gson or Jakarta Json because it was easiest, but it looks like for a simple project I should be using dsl-json or fastjson.
+
+... IDK
