@@ -27,11 +27,16 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * @author kdill
  */
 @WebServlet(name = "RequestServlet", urlPatterns = "/api/*")
 public class RequestServlet extends HttpServlet {
+    private static final Logger LOGGER  = LogManager.getLogger();
+    
     private PostgresqlConnectionProvider pgConProvider;
     private Properties props;
 
@@ -265,6 +270,7 @@ public class RequestServlet extends HttpServlet {
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
+        LOGGER.info("Reached requestServlet: {}, parms={}", req.getPathInfo(), req.getParameterMap().toString());
         //set allow cors from my own origin:
         resp.addHeader("AccessControl-Allow-Origin", myAppUrl(props));
 

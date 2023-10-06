@@ -21,10 +21,9 @@ import java.util.Properties;
 import java.util.UUID;
 
 /**
- * Removing in favor of Servlet architecture with JEE and Glassfish
+ * Running simple things in main to test and verify
  * @author kdill
  */
-//@ApplicationPath("/rest/api")
 public class SimpleApp {
     private static final Logger LOGGER = LogManager.getLogger(SimpleApp.class);
 
@@ -38,7 +37,10 @@ public class SimpleApp {
     public static void main(String[] args) throws InterruptedException {
 
         try {
+            
+            LOGGER.info("something logged");
             loadApplicationProperties();
+            LOGGER.info("app settings loaded");
 
             //TODO: figure out how to use datastore for postgresql instead of abstracted thing.
 //            PGSimpleDataSource ds = new PGSimpleDataSource();
@@ -48,6 +50,7 @@ public class SimpleApp {
 
 //            SampleUserTest(pgConProvider);
 
+            LOGGER.info("Starting to write and persist a document");
             EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("simple");
             EntityManager entityManager = entityManagerFactory.createEntityManager();
 
@@ -57,9 +60,10 @@ public class SimpleApp {
 
             entityManager.persist(document);
             entityManager.getTransaction().commit();
-
-
-
+            
+            
+            LOGGER.info("Document written: {}", document);
+            
             //main loop
 //            HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
 //            server.createContext("/sample", new MyHandler());
