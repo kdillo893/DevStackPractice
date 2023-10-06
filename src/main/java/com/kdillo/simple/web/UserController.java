@@ -42,7 +42,7 @@ public class UserController {
 
         String email = "testemail@mail.com";
         String lastName = "Someone";
-        return new UserRecord(theUid, TEMPLATE, optionalUser.isPresent() ? optionalUser.get().getLastName() : lastName, email);
+        return new UserRecord(theUid, TEMPLATE, optionalUser.isPresent() ? optionalUser.get().last_name: lastName, email);
     }
 
 //    @PostMapping("/user")

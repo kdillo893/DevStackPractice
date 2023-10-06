@@ -53,13 +53,16 @@ public class UserDBImpl {
         
         try {
             Connection conn = this.connectionProvider.getConnection();
-
+            
             //TODO: insert where logic depending on the parameters;
-            String sqlQuery = "SELECT uid, first_name, last_name, email, created, updated, pass_hash, pass_salt FROM users" +
-                    " WHERE last_name = ? " +
-                    " LIMIT " + limit + " OFFSET " + offset + ";";
-            PreparedStatement pStatement = conn.prepareStatement(sqlQuery);
-            pStatement.setString(1, user.getLastName());
+            String theQuery = "SELECT uid, first_name, last_name, email, created, updated, pass_hash, pass_salt FROM users";
+            
+            PreparedStatement pStatement = conn.prepareStatement(theQuery);
+//            pStatement.setString(1, User.first_name);
+//            pStatement.setString(2, User.last_name);
+//            pStatement.setString(3, user.getEmail());
+            
+            LOGGER.info("prepared getAll: {}", pStatement.toString());
 
             ResultSet resultSet = pStatement.executeQuery();
 
@@ -140,7 +143,7 @@ public class UserDBImpl {
 
     public UUID add(User obj) {
 
-        if (!obj.hasPassword() || obj.getEmail() == null)
+        if (!obj.hasPassword() || obj.email == null)
             return null;
 
         obj.calculatePassHashWithNewSalt();
@@ -156,9 +159,9 @@ public class UserDBImpl {
             PreparedStatement pStatement = conn.prepareStatement(statementString);
 
             //setting attributes of prepared statement 1=fn, 2=ln, 3=email, 4=uid
-            pStatement.setString(1, obj.getFirstName());
-            pStatement.setString(2, obj.getLastName());
-            pStatement.setString(3, obj.getEmail());
+            pStatement.setString(1, obj.first_name);
+            pStatement.setString(2, obj.last_name);
+            pStatement.setString(3, obj.email);
             pStatement.setString(4, obj.getPassHash());
             pStatement.setString(5, obj.getPassSalt());
 
@@ -185,27 +188,27 @@ public class UserDBImpl {
 
         //guard clauses:
         //if no UID return false.
-        if (obj.getUid() == null)
+        if (obj.uid == null)
             return false;
 
         //if no updatable attributes to set, return false
-        if (!(obj.getLastName() != null
-                || obj.getFirstName() != null
-                || obj.getEmail() != null
+        if (!(obj.last_name != null
+                || obj.first_name != null
+                || obj.email != null
                 || obj.hasPassword())
         )
             return false;
 
-        Optional<User> userInDb = this.getById(obj.getUid());
+        Optional<User> userInDb = this.getById(obj.uid);
         if (userInDb.isEmpty())
             return false;
 
         User updateUserObj = userInDb.get();
 
-        obj.setUid(updateUserObj.getUid());
-        if (obj.getFirstName() == null) obj.setFirstName(updateUserObj.getFirstName());
-        if (obj.getLastName() == null) obj.setLastName(updateUserObj.getLastName());
-        if (obj.getEmail() == null) obj.setEmail(updateUserObj.getEmail());
+        obj.uid = updateUserObj.uid;
+        if (obj.first_name == null) obj.first_name = updateUserObj.first_name;
+        if (obj.last_name == null) obj.last_name = updateUserObj.last_name;
+        if (obj.email == null) obj.email = updateUserObj.email;
         if (obj.hasPassword()) {
             obj.calculatePassHashWithNewSalt();
         }
@@ -220,10 +223,10 @@ public class UserDBImpl {
                     " WHERE uid = ?";
             PreparedStatement pStatement = conn.prepareStatement(statementString);
 
-            pStatement.setString(1, obj.getFirstName());
-            pStatement.setString(2, obj.getLastName());
-            pStatement.setString(3, obj.getEmail());
-            pStatement.setObject(4, obj.getUid());
+            pStatement.setString(1, obj.first_name);
+            pStatement.setString(2, obj.last_name);
+            pStatement.setString(3, obj.email);
+            pStatement.setObject(4, obj.uid);
 
             int effectedLines = pStatement.executeUpdate();
 
@@ -234,7 +237,7 @@ public class UserDBImpl {
                 pStatement = conn.prepareStatement(statementString);
                 pStatement.setString(1, obj.getPassHash());
                 pStatement.setString(2, obj.getPassSalt());
-                pStatement.setObject(3, obj.getUid());
+                pStatement.setObject(3, obj.uid);
             }
 
             //autocommit is enabled, can turn it off if I want.
@@ -253,7 +256,7 @@ public class UserDBImpl {
     }
 
     public boolean delete(User obj) throws Exception {
-        return deleteById(obj.getUid());
+        return deleteById(obj.uid);
     }
 
     public boolean deleteById(UUID uuid) {

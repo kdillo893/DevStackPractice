@@ -61,4 +61,11 @@
             <exec.appArgs></exec.appArgs>
         </properties>
     </action>
+    <action>
+            <actionName>CUSTOM-update and analyze deps</actionName>
+            <displayName>update and analyze deps</displayName>
+            <goals>
+                <goal>dependency:analyze</goal>
+            </goals>
+        </action>
 </actions>

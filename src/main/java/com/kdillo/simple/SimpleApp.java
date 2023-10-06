@@ -7,7 +7,6 @@ import com.kdillo.simple.entities.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
-import jakarta.json.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -48,7 +47,8 @@ public class SimpleApp {
             //abstracted connection provider, which spins up new DB connections;
             pgConProvider = new PostgresqlConnectionProvider(props);
 
-//            SampleUserTest(pgConProvider);
+            SampleUserTest(pgConProvider);
+            if (true) return;
 
             LOGGER.info("Starting to write and persist a document");
             EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("simple");
@@ -87,10 +87,10 @@ public class SimpleApp {
         if (optionalUser.isPresent()) {
             User theUser = optionalUser.get();
 
-            if (theUser.getFirstName().equals("Kevin")) {
-                theUser.setFirstName("Tyler");
-            } else if (theUser.getFirstName().equals("Tyler")) {
-                theUser.setFirstName("Kevin");
+            if (theUser.first_name.equals("James")) {
+                theUser.first_name = "Tyler";
+            } else if (theUser.first_name.equals("Tyler")) {
+                theUser.first_name = "James";
             }
 
             try {
@@ -109,7 +109,7 @@ public class SimpleApp {
 
         User testUser = new User();
         //find users matching a certain criteria on User object
-        testUser.setLastName("Dillon");
+        testUser.last_name = "Dillon";
         List<User> users = userDbImpl.getAll(testUser);
         System.out.println(users);
 

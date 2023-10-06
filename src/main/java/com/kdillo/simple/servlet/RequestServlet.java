@@ -3,7 +3,6 @@ package com.kdillo.simple.servlet;
 import com.kdillo.simple.db.PostgresqlConnectionProvider;
 import com.kdillo.simple.db.UserDBImpl;
 import com.kdillo.simple.entities.User;
-
 import jakarta.json.Json;
 import jakarta.json.JsonArrayBuilder;
 import jakarta.json.JsonObject;
@@ -13,7 +12,6 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -22,7 +20,6 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
@@ -93,14 +90,14 @@ public class RequestServlet extends HttpServlet {
                 //do I need to URL Decode?
                 parmEntry = URLDecoder.decode(parmEntry, "UTF-8");
 
-                if (parmEntry.equals("last")) {
-                    queryUser.setLastName(request.getParameter("last"));
+                if (parmEntry.equals("last_name")) {
+                    queryUser.last_name = request.getParameter("last_name");
                 }
-                if (parmEntry.equals("first")) {
-                    queryUser.setFirstName(request.getParameter("first"));
+                if (parmEntry.equals("first_name")) {
+                    queryUser.first_name = request.getParameter("first_name");
                 }
                 if (parmEntry.equals("email")) {
-                    queryUser.setEmail(request.getParameter("email"));
+                    queryUser.email = request.getParameter("email");
                 }
             }
             
