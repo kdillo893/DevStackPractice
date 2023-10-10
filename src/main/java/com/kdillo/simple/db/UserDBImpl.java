@@ -60,7 +60,7 @@ public class UserDBImpl {
             PreparedStatement pStatement = conn.prepareStatement(theQuery);
 //            pStatement.setString(1, User.first_name);
 //            pStatement.setString(2, User.last_name);
-//            pStatement.setString(3, user.getEmail());
+//            pStatement.setString(3, user.email());
             
             LOGGER.info("prepared getAll: {}", pStatement.toString());
 
