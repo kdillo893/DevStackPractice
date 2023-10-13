@@ -56,13 +56,17 @@ Install from https://glassfish.org/download.html .
 Maven pom has information to point to the installation location for glassfish.
 Right now I'm just running it from Netbeans and specifying the server to launch.
 
+In order to configure the domain where we will launch things from, need to create that first.
+create: (from glassfish installation) ```asadmin create-domain --adminport 4848 <domainName>```
+this will prompt for admin username and password. The admin port will establish to run on 4848 and can be accessed from there.
+
 starting and stopping the glassfish server:
-Start: (from the installation location) asadmin start-domain <domainName>
-Shutdown: (from the installation location) asadmin stop-domain <domainName>
+Start: (from the installation location) ```asadmin start-domain <domainName>```
+Shutdown: (from the installation location) ```asadmin stop-domain <domainName>```
 
 deploying the war to the domain:
-asadmin deploy <thewarjar>
-asadmin undeploy <thewarjar name without file extension>
+```asadmin deploy <thewarjar>```
+```asadmin undeploy <thewarjar name without file extension>```
 
 ### Tomcat/TomEE
 Google it...
