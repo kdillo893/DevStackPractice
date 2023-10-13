@@ -53,14 +53,58 @@ public class UserDBImpl {
         
         try {
             Connection conn = this.connectionProvider.getConnection();
+
+            int parmCount = 0;
             
+            LOGGER.info("Preparing getAllUsers with parameters from User: %s", user.toString());    
+
             //TODO: insert where logic depending on the parameters;
             String theQuery = "SELECT uid, first_name, last_name, email, created, updated, pass_hash, pass_salt FROM users";
-            
+
+
+            Map<Integer, Object> queryWhereMap = new HashMap<>(); 
+
+            if (user.email != null) {
+                if (parmCount == 0)
+                    theQuery += " WHERE email=?";
+                else 
+                    theQuery += " AND email=?";
+
+                parmCount++;
+                queryWhereMap.put(parmCount, user.email);
+            }
+
+            if (user.last_name != null) {
+                if (parmCount == 0)
+                    theQuery += " WHERE last_name=?";
+                else 
+                    theQuery += " AND last_name=?";
+
+                parmCount++;
+                queryWhereMap.put(parmCount, user.last_name);
+            }
+
+            if (user.first_name != null) {
+                if (parmCount == 0)
+                    theQuery += " WHERE first_name=?";
+                else 
+                    theQuery += " AND first_name=?";
+
+                parmCount++;
+                queryWhereMap.put(parmCount, user.first_name);
+            }
+
+
             PreparedStatement pStatement = conn.prepareStatement(theQuery);
-//            pStatement.setString(1, User.first_name);
-//            pStatement.setString(2, User.last_name);
-//            pStatement.setString(3, user.email());
+            for (Map.Entry<Integer,Object> whereEntry : queryWhereMap.entrySet()) {
+                if (whereEntry.getValue() instanceof String) {
+                    pStatement.setString(whereEntry.getKey(), (String) whereEntry.getValue());
+                } else if (whereEntry.getValue() instanceof Date) {
+                    pStatement.setDate(whereEntry.getKey(), (java.sql.Date) whereEntry.getValue());
+                } else {
+                    pStatement.setObject(whereEntry.getKey(), whereEntry.getValue());
+                }
+            }
             
             LOGGER.info("prepared getAll: {}", pStatement.toString());
 
