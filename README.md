@@ -64,6 +64,8 @@ starting and stopping the glassfish server:
 Start: (from the installation location) ```asadmin start-domain <domainName>```
 Shutdown: (from the installation location) ```asadmin stop-domain <domainName>```
 
+adding the war to the domain for auto-deploy? hmmm... not sure.
+
 deploying the war to the domain:
 ```asadmin deploy <thewarjar>```
 ```asadmin undeploy <thewarjar name without file extension>```

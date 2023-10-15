@@ -17,6 +17,9 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URLDecoder;
+import java.sql.Date;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -82,6 +85,8 @@ public class RequestServlet extends HttpServlet {
             //query by what? just last name for now
 
             User queryUser = new User();
+            Date before = null;
+            Date after = null;
             
             //check the parameters, put things on user that match expectations
             Iterator<String> parameterNames = request.getParameterNames().asIterator();
@@ -99,12 +104,30 @@ public class RequestServlet extends HttpServlet {
                 if (parmEntry.equals("email")) {
                     queryUser.email = request.getParameter("email");
                 }
+                if (parmEntry.equals("before")) {
+                    try {
+                        before = Date.valueOf(request.getParameter(parmEntry));
+                    } catch (Exception ex) {
+                        LOGGER.error("Unable to parse date", request.getParameter("before"));
+                    }
+                }
+                if (parmEntry.equals("after")) {
+                    try {
+                        after = Date.valueOf(request.getParameter(parmEntry));
+                    } catch (Exception ex) {
+                        LOGGER.error("Unable to parse date", request.getParameter("after"));
+                    }
+                }
             }
             
             // need a "before/after" to get users created before or after a certain date range...
-
             UserDBImpl userDbImpl = new UserDBImpl(pgConProvider);
-            List<User> users = userDbImpl.getAll(queryUser);
+            List<User> users = null; 
+            if (before != null || after != null) {
+                users = userDbImpl.getAll(queryUser, before, after);
+            } else {
+                users = userDbImpl.getAll(queryUser);
+            }
 
             JsonArrayBuilder userJsonArray = Json.createArrayBuilder();
             for (User user : users) {

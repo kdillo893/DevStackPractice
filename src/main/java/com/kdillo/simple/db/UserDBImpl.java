@@ -4,6 +4,7 @@ import com.kdillo.simple.entities.User;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.sql.Date;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,7 +17,6 @@ public class UserDBImpl {
     private static final int RETRIEVE_LIMIT = 100;
 
     private static final String USERS_TABLE_NAME = "users";
-
 
     //TODO: figure out if there's a way to protect deleting things from db side.
     private static final UUID ADMIN_USER_ID = UUID.fromString("f7062c7a-d3ec-485c-898d-cca6ade0512a");
@@ -47,28 +47,34 @@ public class UserDBImpl {
 
         return users;
     }
-    
+
     public List<User> getAll(User user, int offset, int limit) {
+        return getAll(user, offset, limit, null, null);
+    }
+
+    public List<User> getAll(User user, Date before, Date after) {
+        return getAll(user, 0, RETRIEVE_LIMIT, before, after);
+    }
+
+    public List<User> getAll(User user, int offset, int limit, Date before, Date after) {
         List<User> resultList = new ArrayList<>();
-        
+
         try {
             Connection conn = this.connectionProvider.getConnection();
 
             int parmCount = 0;
-            
-            LOGGER.info("Preparing getAllUsers with parameters from User: %s", user.toString());    
 
-            //TODO: insert where logic depending on the parameters;
+            //prepare the "select" query
+            LOGGER.info("Preparing getAllUsers with parameters from User: {}", user.toString());
             String theQuery = "SELECT uid, first_name, last_name, email, created, updated, pass_hash, pass_salt FROM users";
 
-
             Map<Integer, Object> queryWhereMap = new HashMap<>(); 
-
             if (user.email != null) {
                 if (parmCount == 0)
-                    theQuery += " WHERE email=?";
+                    theQuery += " WHERE ";
                 else 
-                    theQuery += " AND email=?";
+                    theQuery += " AND ";
+                theQuery += " email = ?";
 
                 parmCount++;
                 queryWhereMap.put(parmCount, user.email);
@@ -76,9 +82,10 @@ public class UserDBImpl {
 
             if (user.last_name != null) {
                 if (parmCount == 0)
-                    theQuery += " WHERE last_name=?";
+                    theQuery += " WHERE ";
                 else 
-                    theQuery += " AND last_name=?";
+                    theQuery += " AND ";
+                theQuery += " last_name = ?";
 
                 parmCount++;
                 queryWhereMap.put(parmCount, user.last_name);
@@ -86,26 +93,49 @@ public class UserDBImpl {
 
             if (user.first_name != null) {
                 if (parmCount == 0)
-                    theQuery += " WHERE first_name=?";
+                    theQuery += " WHERE ";
                 else 
-                    theQuery += " AND first_name=?";
+                    theQuery += " AND ";
+                theQuery += " first_name = ?";
 
                 parmCount++;
                 queryWhereMap.put(parmCount, user.first_name);
             }
 
+            if (before != null) {
+                if (parmCount == 0)
+                    theQuery += " WHERE ";
+                else 
+                    theQuery += " AND ";
+                theQuery += " created < ?";
 
+                parmCount++;
+                queryWhereMap.put(parmCount, before);
+            }
+            if (after != null) {
+                if (parmCount == 0)
+                    theQuery += " WHERE ";
+                else 
+                    theQuery += " AND ";
+                theQuery += " created > ?";
+
+                parmCount++;
+                queryWhereMap.put(parmCount, after);
+            }
+            theQuery+= " LIMIT " + limit + " OFFSET " + offset;
+
+            //query prep'd, prepareStatement to fill segments
             PreparedStatement pStatement = conn.prepareStatement(theQuery);
             for (Map.Entry<Integer,Object> whereEntry : queryWhereMap.entrySet()) {
                 if (whereEntry.getValue() instanceof String) {
                     pStatement.setString(whereEntry.getKey(), (String) whereEntry.getValue());
                 } else if (whereEntry.getValue() instanceof Date) {
-                    pStatement.setDate(whereEntry.getKey(), (java.sql.Date) whereEntry.getValue());
+                    pStatement.setDate(whereEntry.getKey(), (Date) whereEntry.getValue());
                 } else {
                     pStatement.setObject(whereEntry.getKey(), whereEntry.getValue());
                 }
             }
-            
+
             LOGGER.info("prepared getAll: {}", pStatement.toString());
 
             ResultSet resultSet = pStatement.executeQuery();
@@ -120,20 +150,24 @@ public class UserDBImpl {
 
         return resultList;
     }
-    
 
+    /**
+     * default query by user, no offset or retrieve limit specified
+     */
     public List<User> getAll(User user) {
         return getAll(user, 0, RETRIEVE_LIMIT);
     }
 
+    /**
+     * getAll without any logic for filtering by users; no offset/limit
+     */
     public List<User> getAll() {
 
         try {
             Connection conn = this.connectionProvider.getConnection();
 
-            //TODO: insert where logic depending on the parameters
             String sqlQuery = "SELECT uid, first_name, last_name, email, created, updated, pass_hash, pass_salt FROM users" +
-                    " LIMIT " + RETRIEVE_LIMIT + " ;";
+                " LIMIT " + RETRIEVE_LIMIT + " ;";
             PreparedStatement pStatement = conn.prepareStatement(sqlQuery);
 
             ResultSet resultSet = pStatement.executeQuery();
@@ -162,13 +196,13 @@ public class UserDBImpl {
             if (resultSet.next()) {
                 //getting all the columns and setting user object.
                 return Optional.of(new User(UUID.fromString(resultSet.getString(1)),
-                        resultSet.getString(2),
-                        resultSet.getString(3),
-                        resultSet.getString(4),
-                        resultSet.getDate(5),
-                        resultSet.getDate(6),
-                        resultSet.getString(7),
-                        resultSet.getString(8)));
+                            resultSet.getString(2),
+                            resultSet.getString(3),
+                            resultSet.getString(4),
+                            resultSet.getDate(5),
+                            resultSet.getDate(6),
+                            resultSet.getString(7),
+                            resultSet.getString(8)));
             }
         } catch (SQLException sqlException) {
             LOGGER.debug("SQL Exception, meaning bad query.");
@@ -197,9 +231,9 @@ public class UserDBImpl {
             String columnsCommaSeparated = String.format("(%s, %s, %s, %s, %s, %s, %s, %s)",
                     "uid", "first_name", "last_name", "email", "created", "updated", "pass_hash", "pass_salt");
             String statementString = "INSERT INTO " + USERS_TABLE_NAME +
-                    columnsCommaSeparated +
-                    " VALUES (default, ?, ?, ?, now(), now(), ?, ?)" +
-                    " RETURNING uid";
+                columnsCommaSeparated +
+                " VALUES (default, ?, ?, ?, now(), now(), ?, ?)" +
+                " RETURNING uid";
             PreparedStatement pStatement = conn.prepareStatement(statementString);
 
             //setting attributes of prepared statement 1=fn, 2=ln, 3=email, 4=uid
@@ -237,10 +271,10 @@ public class UserDBImpl {
 
         //if no updatable attributes to set, return false
         if (!(obj.last_name != null
-                || obj.first_name != null
-                || obj.email != null
-                || obj.hasPassword())
-        )
+                    || obj.first_name != null
+                    || obj.email != null
+                    || obj.hasPassword())
+           )
             return false;
 
         Optional<User> userInDb = this.getById(obj.uid);
@@ -261,10 +295,10 @@ public class UserDBImpl {
             Connection conn = this.connectionProvider.getConnection();
             conn.setAutoCommit(false);
             String statementString = "UPDATE " + USERS_TABLE_NAME +
-                    " SET" +
-                    " (first_name, last_name, email, updated)" +
-                    " = (?, ?, ?, now())" +
-                    " WHERE uid = ?";
+                " SET" +
+                " (first_name, last_name, email, updated)" +
+                " = (?, ?, ?, now())" +
+                " WHERE uid = ?";
             PreparedStatement pStatement = conn.prepareStatement(statementString);
 
             pStatement.setString(1, obj.first_name);
@@ -277,7 +311,7 @@ public class UserDBImpl {
             //are we also updating the password?
             if (obj.hasPassword()) {
                 statementString = "UPDATE " + USERS_TABLE_NAME +
-                        " SET (pass_hash, pass_salt, updated) = (?, ?, now()) WHERE uid = ?";
+                    " SET (pass_hash, pass_salt, updated) = (?, ?, now()) WHERE uid = ?";
                 pStatement = conn.prepareStatement(statementString);
                 pStatement.setString(1, obj.getPassHash());
                 pStatement.setString(2, obj.getPassSalt());
@@ -319,9 +353,9 @@ public class UserDBImpl {
 
             boolean execResult = preparedStatement.execute();
             int updatedCount = preparedStatement.getUpdateCount();
-            
+
             return updatedCount >= 0;
-            
+
         } catch (SQLException sqlException) {
             LOGGER.debug("SQL Exception, meaning bad query.");
             sqlException.printStackTrace();
