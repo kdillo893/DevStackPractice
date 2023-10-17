@@ -47,3 +47,4 @@ src/main/webapp/WEB-INF/glassfish-web.xml
 
 #lsp handler
 .factorypath
+/nbproject/

@@ -1,15 +1,16 @@
 package com.kdillo.simple.db;
 
 import com.kdillo.simple.entities.User;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
-import java.sql.Date;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class UserDBImpl {
     private static final Logger LOGGER = LogManager.getLogger(UserDBImpl.class);
@@ -127,10 +128,10 @@ public class UserDBImpl {
             //query prep'd, prepareStatement to fill segments
             PreparedStatement pStatement = conn.prepareStatement(theQuery);
             for (Map.Entry<Integer,Object> whereEntry : queryWhereMap.entrySet()) {
-                if (whereEntry.getValue() instanceof String) {
-                    pStatement.setString(whereEntry.getKey(), (String) whereEntry.getValue());
-                } else if (whereEntry.getValue() instanceof Date) {
-                    pStatement.setDate(whereEntry.getKey(), (Date) whereEntry.getValue());
+                if (whereEntry.getValue() instanceof String string) {
+                    pStatement.setString(whereEntry.getKey(), string);
+                } else if (whereEntry.getValue() instanceof Date date) {
+                    pStatement.setDate(whereEntry.getKey(), date);
                 } else {
                     pStatement.setObject(whereEntry.getKey(), whereEntry.getValue());
                 }
@@ -143,8 +144,7 @@ public class UserDBImpl {
             resultList = getUsersFromResultSet(resultSet);
         } catch (SQLException sqlException) {
             LOGGER.debug("SQL Exception, bad query getting all Users");
-            sqlException.printStackTrace();
-        } catch (Exception ex) {
+        } catch (ClassNotFoundException ex) {
             ex.printStackTrace();
         }
 
@@ -153,6 +153,8 @@ public class UserDBImpl {
 
     /**
      * default query by user, no offset or retrieve limit specified
+     * @param user
+     * @return 
      */
     public List<User> getAll(User user) {
         return getAll(user, 0, RETRIEVE_LIMIT);
@@ -160,6 +162,7 @@ public class UserDBImpl {
 
     /**
      * getAll without any logic for filtering by users; no offset/limit
+     * @return 
      */
     public List<User> getAll() {
 
@@ -175,8 +178,7 @@ public class UserDBImpl {
             return getUsersFromResultSet(resultSet);
         } catch (SQLException sqlException) {
             LOGGER.debug("SQL Exception, bad query getting all Users");
-            sqlException.printStackTrace();
-        } catch (Exception ex) {
+        } catch (ClassNotFoundException ex) {
             ex.printStackTrace();
         }
 
@@ -207,7 +209,7 @@ public class UserDBImpl {
         } catch (SQLException sqlException) {
             LOGGER.debug("SQL Exception, meaning bad query.");
             sqlException.printStackTrace();
-        } catch (Exception ex) {
+        } catch (ClassNotFoundException ex) {
             ex.printStackTrace();
         }
 
@@ -255,7 +257,7 @@ public class UserDBImpl {
         } catch (SQLException sqlException) {
             LOGGER.debug("SQLException update on user");
             sqlException.printStackTrace();
-        } catch (Exception ex) {
+        } catch (ClassNotFoundException ex) {
             ex.printStackTrace();
         }
 
@@ -326,7 +328,7 @@ public class UserDBImpl {
         } catch (SQLException sqlException) {
             LOGGER.debug("SQLException update on user");
             sqlException.printStackTrace();
-        } catch (Exception ex) {
+        } catch (ClassNotFoundException ex) {
             ex.printStackTrace();
         }
 
@@ -359,7 +361,7 @@ public class UserDBImpl {
         } catch (SQLException sqlException) {
             LOGGER.debug("SQL Exception, meaning bad query.");
             sqlException.printStackTrace();
-        } catch (Exception ex) {
+        } catch (ClassNotFoundException ex) {
             ex.printStackTrace();
         }
 
