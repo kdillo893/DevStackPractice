@@ -25,6 +25,7 @@ import jakarta.json.JsonArray;
 import jakarta.json.JsonArrayBuilder;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonObjectBuilder;
+import jakarta.json.JsonValue;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -37,7 +38,7 @@ import jakarta.servlet.http.HttpServletResponse;
 @WebServlet(name = "RequestServlet", urlPatterns = "/api/*")
 public class RequestServlet extends HttpServlet {
     private static final Logger LOGGER  = LogManager.getLogger();
-    
+
     private PostgresqlConnectionProvider pgConProvider;
     private Properties props;
 
@@ -59,6 +60,16 @@ public class RequestServlet extends HttpServlet {
             //LOGGER.debug("Unable to load app properties");
             ex.printStackTrace();
         }
+    }
+
+    @Override
+    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+        LOGGER.info("Reached requestServlet: {}, parms={}", req.getPathInfo(), req.getParameterMap().toString());
+        //set allow cors from my own origin:
+        resp.addHeader("AccessControl-Allow-Origin", myAppUrl(props));
+
+        super.service(req, resp);
     }
 
     /**
@@ -93,6 +104,77 @@ public class RequestServlet extends HttpServlet {
         }
     }
 
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        //parse the URI
+        List<String> pathParts = parsePath(request.getPathInfo());
+        String resourceType = parseResourceType(pathParts);
+
+        //if pathParts is empty (just reach here with /api), give a "basic info" thing
+        if (resourceType == null) {
+            returnBasicInfo(request, response);
+
+            return;
+        }
+
+        UUID id = parseIdFromRequest(pathParts);
+        //        System.out.printf("resourceType=%s, id=%s\n", resourceType, id);
+
+        //if ID, then "get by Id", else "query by parms"
+        if (id != null) {
+            //need to think of why I would post for something with an ID...
+        } else {
+           //
+        }
+    }
+
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        super.doPut(req, resp); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/OverriddenMethodBody
+    }
+
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        //parse the URI
+        List<String> pathParts = parsePath(req.getPathInfo());
+        String resourceType = parseResourceType(pathParts);
+
+        //if pathParts is empty (just reach here with /api), no deleting done.
+        if (resourceType == null) {
+            resp.setStatus(400);
+            resp.setContentType("text/json");
+            Writer out = resp.getWriter();
+
+            //have an object describing the "bad request" error
+            JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
+            JsonArray errorJsonArray = buildJsonErrorArray("No deleting for this endpoint", "rest");
+            jsonObjectBuilder.add("error", errorJsonArray);
+
+            out.write(jsonObjectBuilder.build().toString());
+
+            return;
+        }
+
+        UUID id = parseIdFromRequest(pathParts);
+
+        //if ID, then "get by Id", else "query by parms"
+        if (id != null) {
+            deleteById(id, resourceType, req, resp);
+        } else {
+            // no ID, can't delete the resource (don't allow multiple deletions)
+            resp.setStatus(400);
+            resp.setContentType("text/json");
+            Writer out = resp.getWriter();
+
+            //have an object describing the "bad request" error
+            JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
+            JsonArray errorJsonArray = buildJsonErrorArray("Id not specified for resource to delete", "rest");
+            jsonObjectBuilder.add("error", errorJsonArray);
+
+            out.write(jsonObjectBuilder.build().toString());
+        }
+    }
+
     private void getById(UUID id, String resourceType, HttpServletRequest req, HttpServletResponse resp) throws IOException {
         JsonObjectBuilder jsonBuilder = Json.createObjectBuilder();
         resp.setContentType("text/json");
@@ -120,7 +202,7 @@ public class RequestServlet extends HttpServlet {
             User queryUser = new User();
             Date before = null;
             Date after = null;
-            
+
             //check the parameters, put things on user that match expectations
             Iterator<String> parameterNames = request.getParameterNames().asIterator();
             while (parameterNames.hasNext()) {
@@ -152,7 +234,7 @@ public class RequestServlet extends HttpServlet {
                     }
                 }
             }
-            
+
             // need a "before/after" to get users created before or after a certain date range...
             UserDBImpl userDbImpl = new UserDBImpl(pgConProvider);
             List<User> users = null; 
@@ -167,7 +249,27 @@ public class RequestServlet extends HttpServlet {
                 userJsonArray.add(user.toJson());
             }
 
-            jsonBuilder.add("users", userJsonArray);
+            JsonObjectBuilder usersObject = Json.createObjectBuilder();
+            usersObject.add("users", userJsonArray);
+
+            jsonBuilder.add("success", buildJsonSuccessArray("got users", "rest", usersObject.build()));
+            
+        }
+
+        out.write(jsonBuilder.build().toString());
+    }
+
+    private void deleteById(UUID id, String resourceType, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        JsonObjectBuilder jsonBuilder = Json.createObjectBuilder();
+        resp.setContentType("text/json");
+        Writer out = resp.getWriter();
+
+        if (resourceType.equals("users")) {
+            UserDBImpl userDbImpl = new UserDBImpl(pgConProvider);
+            boolean successfulDelete = userDbImpl.deleteById(id);
+
+            String message = successfulDelete ? "deleted user with id " + id.toString() : "No user deleted";
+            jsonBuilder.add("success", buildJsonSuccessArray(message, "rest", null));
         }
 
         out.write(jsonBuilder.build().toString());
@@ -272,56 +374,6 @@ public class RequestServlet extends HttpServlet {
         resp.setContentType("text/json");
         resp.getWriter().write(jsonObject.build().toString());
     }
-
-    @Override
-    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        //parse the URI
-        List<String> pathParts = parsePath(req.getPathInfo());
-        String resourceType = parseResourceType(pathParts);
-
-        //if pathParts is empty (just reach here with /api), give a "basic info" thing
-        if (resourceType == null) {
-            returnBasicInfo(req, resp);
-
-            return;
-        }
-
-        UUID id = parseIdFromRequest(pathParts);
-        //        System.out.printf("resourceType=%s, id=%s\n", resourceType, id);
-
-        //if ID, then "get by Id", else "query by parms"
-        if (id != null) {
-            deleteById(id, resourceType, req, resp);
-        } else {
-            // no ID, can't delete the resource (don't allow multiple deletions)
-            resp.setStatus(400);
-            resp.setContentType("text/json");
-            Writer out = resp.getWriter();
-
-            //have an object describing the "bad request" error
-            JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
-            JsonArray errorJsonArray = buildJsonErrorArray("", "rest");
-            jsonObjectBuilder.add("error", errorJsonArray);
-
-            out.write(jsonObjectBuilder.build().toString());
-        }
-    }
-
-    private void deleteById(UUID id, String resourceType, HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        JsonObjectBuilder jsonBuilder = Json.createObjectBuilder();
-        resp.setContentType("text/json");
-        Writer out = resp.getWriter();
-
-        if (resourceType.equals("users")) {
-            UserDBImpl userDbImpl = new UserDBImpl(pgConProvider);
-            boolean successfulDelete = userDbImpl.deleteById(id);
-
-            jsonBuilder.add("deleted-user-id", successfulDelete ? id.toString() : "");
-        }
-
-        out.write(jsonBuilder.build().toString());
-    }
-
     /**
      * Build a json array object for response given message and type of message
      * TODO might want to make it so there can be multiple errors later.
@@ -330,29 +382,27 @@ public class RequestServlet extends HttpServlet {
         JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
         jsonObjectBuilder.add("type", type);
         jsonObjectBuilder.add("message", message);
-        
+
+        return Json.createArrayBuilder().add(jsonObjectBuilder.build()).build();
+    }
+
+    /**
+     * Build a json array object for response given message and type of message
+     * TODO might want to make it so there can be multiple errors later.
+     */
+    private JsonArray buildJsonSuccessArray(String message, String type, JsonValue jsonDataToAdd) {
+        JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
+        jsonObjectBuilder.add("type", type);
+        jsonObjectBuilder.add("message", message);
+
+
+        if (jsonDataToAdd != null) {
+            jsonObjectBuilder.add("data", jsonDataToAdd);
+        }
+
         return Json.createArrayBuilder().add(jsonObjectBuilder.build()).build();
     }
 
 
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        super.doPost(req, resp); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/OverriddenMethodBody
-    }
-
-    @Override
-    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        super.doPut(req, resp); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/OverriddenMethodBody
-    }
-
-    @Override
-    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
-        LOGGER.info("Reached requestServlet: {}, parms={}", req.getPathInfo(), req.getParameterMap().toString());
-        //set allow cors from my own origin:
-        resp.addHeader("AccessControl-Allow-Origin", myAppUrl(props));
-
-        super.service(req, resp);
-    }
 
 }

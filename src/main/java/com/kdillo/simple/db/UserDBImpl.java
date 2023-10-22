@@ -356,7 +356,7 @@ public class UserDBImpl {
             boolean execResult = preparedStatement.execute();
             int updatedCount = preparedStatement.getUpdateCount();
 
-            return updatedCount >= 0;
+            return updatedCount > 0;
 
         } catch (SQLException sqlException) {
             LOGGER.debug("SQL Exception, meaning bad query.");
