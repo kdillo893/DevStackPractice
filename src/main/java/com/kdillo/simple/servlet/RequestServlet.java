@@ -1,17 +1,5 @@
 package com.kdillo.simple.servlet;
 
-import com.kdillo.simple.db.PostgresqlConnectionProvider;
-import com.kdillo.simple.db.UserDBImpl;
-import com.kdillo.simple.entities.User;
-import jakarta.json.Json;
-import jakarta.json.JsonArrayBuilder;
-import jakarta.json.JsonObject;
-import jakarta.json.JsonObjectBuilder;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -27,6 +15,21 @@ import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import com.kdillo.simple.db.PostgresqlConnectionProvider;
+import com.kdillo.simple.db.UserDBImpl;
+import com.kdillo.simple.entities.User;
+
+import jakarta.json.Json;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonArrayBuilder;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonObjectBuilder;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * @author kdill
@@ -55,6 +58,38 @@ public class RequestServlet extends HttpServlet {
         } catch (IOException ex) {
             //LOGGER.debug("Unable to load app properties");
             ex.printStackTrace();
+        }
+    }
+
+    /**
+     * Process get for business objects which are displayed by UI
+     *
+     * @param request
+     * @param response
+     * @throws IOException
+     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+        //parse the URI
+        List<String> pathParts = parsePath(request.getPathInfo());
+        String resourceType = parseResourceType(pathParts);
+
+        //if pathParts is empty (just reach here with /api), give a "basic info" thing
+        if (resourceType == null) {
+            returnBasicInfo(request, response);
+
+            return;
+        }
+
+        UUID id = parseIdFromRequest(pathParts);
+        //        System.out.printf("resourceType=%s, id=%s\n", resourceType, id);
+
+        //if ID, then "get by Id", else "query by parms"
+        if (id != null) {
+            getById(id, resourceType, request, response);
+        } else {
+            getMultiple(resourceType, request, response);
         }
     }
 
@@ -240,40 +275,65 @@ public class RequestServlet extends HttpServlet {
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        super.doDelete(req, resp); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/OverriddenMethodBody
-    }
-
-    /**
-     * Process get for business objects which are displayed by UI
-     *
-     * @param request
-     * @param response
-     * @throws IOException
-     */
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
         //parse the URI
-        List<String> pathParts = parsePath(request.getPathInfo());
+        List<String> pathParts = parsePath(req.getPathInfo());
         String resourceType = parseResourceType(pathParts);
 
         //if pathParts is empty (just reach here with /api), give a "basic info" thing
         if (resourceType == null) {
-            returnBasicInfo(request, response);
+            returnBasicInfo(req, resp);
 
             return;
         }
 
         UUID id = parseIdFromRequest(pathParts);
-//        System.out.printf("resourceType=%s, id=%s\n", resourceType, id);
+        //        System.out.printf("resourceType=%s, id=%s\n", resourceType, id);
 
         //if ID, then "get by Id", else "query by parms"
         if (id != null) {
-            getById(id, resourceType, request, response);
+            deleteById(id, resourceType, req, resp);
         } else {
-            getMultiple(resourceType, request, response);
+            // no ID, can't delete the resource (don't allow multiple deletions)
+            resp.setStatus(400);
+            resp.setContentType("text/json");
+            Writer out = resp.getWriter();
+
+            //have an object describing the "bad request" error
+            JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
+            JsonArray errorJsonArray = buildJsonErrorArray("", "rest");
+            jsonObjectBuilder.add("error", errorJsonArray);
+
+            out.write(jsonObjectBuilder.build().toString());
         }
     }
+
+    private void deleteById(UUID id, String resourceType, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        JsonObjectBuilder jsonBuilder = Json.createObjectBuilder();
+        resp.setContentType("text/json");
+        Writer out = resp.getWriter();
+
+        if (resourceType.equals("users")) {
+            UserDBImpl userDbImpl = new UserDBImpl(pgConProvider);
+            boolean successfulDelete = userDbImpl.deleteById(id);
+
+            jsonBuilder.add("deleted-user-id", successfulDelete ? id.toString() : "");
+        }
+
+        out.write(jsonBuilder.build().toString());
+    }
+
+    /**
+     * Build a json array object for response given message and type of message
+     * TODO might want to make it so there can be multiple errors later.
+     */
+    private JsonArray buildJsonErrorArray(String message, String type) {
+        JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
+        jsonObjectBuilder.add("type", type);
+        jsonObjectBuilder.add("message", message);
+        
+        return Json.createArrayBuilder().add(jsonObjectBuilder.build()).build();
+    }
+
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
