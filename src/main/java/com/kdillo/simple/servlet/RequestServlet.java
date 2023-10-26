@@ -117,20 +117,95 @@ public class RequestServlet extends HttpServlet {
             return;
         }
 
-        UUID id = parseIdFromRequest(pathParts);
-        //        System.out.printf("resourceType=%s, id=%s\n", resourceType, id);
+        //check the data type of the request body; use that for parsing.
+        String contentTypeString = request.getHeader("Content-Type");
+        LOGGER.info("content-type for POST: {}", contentTypeString);
 
-        //if ID, then "get by Id", else "query by parms"
-        if (id != null) {
-            //need to think of why I would post for something with an ID...
-        } else {
-           //
+        JsonObject jsonObject = null;
+        if (true || contentTypeString.contains("text/json")) {
+            jsonObject = Json.createReader(request.getReader()).readObject(); 
+        }
+
+        //we have a resource type, try creating the resource type depending on the value:
+        if (resourceType.equals("users")) {
+            User userToCreate = new User();
+            userToCreate.first_name = jsonObject.getString("first_name");
+            userToCreate.last_name = jsonObject.getString("last_name");
+            userToCreate.email = jsonObject.getString("email");
+
+
+            if (jsonObject.get("password") != null) {
+                userToCreate.setPassword(jsonObject.getString("password"));
+                userToCreate.calculatePassHashWithNewSalt();
+            }
+
+            UserDBImpl userDBImpl = new UserDBImpl(pgConProvider);
+            UUID theUserId = userDBImpl.add(userToCreate);
+
+            if (theUserId != null)
+                response.getWriter().print(userDBImpl.getById(theUserId).get().toJson());
+            else 
+                response.getWriter().print(JsonObject.EMPTY_JSON_OBJECT);
         }
     }
 
     @Override
-    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        super.doPut(req, resp); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/OverriddenMethodBody
+    protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        //parse the URI
+        List<String> pathParts = parsePath(request.getPathInfo());
+        String resourceType = parseResourceType(pathParts);
+
+        //if pathParts is empty (just reach here with /api), give a "basic info" thing
+        if (resourceType == null) {
+            returnBasicInfo(request, response);
+
+            return;
+        }
+
+        UUID theId = parseIdFromRequest(pathParts);
+
+        //check the data type of the request body; use that for parsing.
+        String contentTypeString = request.getHeader("Content-Type");
+        LOGGER.info("content-type for PUT: {}", contentTypeString);
+
+        JsonObject jsonObject = null;
+        if (true || contentTypeString.contains("text/json")) {
+            jsonObject = Json.createReader(request.getReader()).readObject(); 
+        }
+
+        //we have a resource type, try creating the resource type depending on the value:
+        if (resourceType.equals("users")) {
+            UserDBImpl userDBImpl = new UserDBImpl(pgConProvider);
+
+            User userToUpdate = new User();
+            userToUpdate.uid = theId;
+            userToUpdate.first_name = jsonObject.getString("first_name");
+            userToUpdate.last_name = jsonObject.getString("last_name");
+            userToUpdate.email = jsonObject.getString("email");
+
+
+            if (jsonObject.get("password") != null) {
+                userToUpdate.setPassword(jsonObject.getString("password"));
+                userToUpdate.calculatePassHashWithNewSalt();
+            }
+
+            boolean wasUpdated = false;;
+            try {
+                wasUpdated = userDBImpl.update(userToUpdate);
+            } catch (Exception ex) {
+                //No user to update. exit with 400
+                JsonObjectBuilder jObjectBuilder = Json.createObjectBuilder();
+                JsonObject responseJson = jObjectBuilder.add("error", buildJsonErrorArray("No such user for ID " + theId, "rest")).build();
+                response.getWriter().print(responseJson.toString());
+                return;
+            }
+
+
+            if (wasUpdated)
+                response.getWriter().print(userDBImpl.getById(theId).get().toJson());
+            else 
+                response.getWriter().print(JsonObject.EMPTY_JSON_OBJECT);
+        }
     }
 
     @Override
@@ -253,7 +328,7 @@ public class RequestServlet extends HttpServlet {
             usersObject.add("users", userJsonArray);
 
             jsonBuilder.add("success", buildJsonSuccessArray("got users", "rest", usersObject.build()));
-            
+
         }
 
         out.write(jsonBuilder.build().toString());
