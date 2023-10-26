@@ -122,17 +122,26 @@ public class RequestServlet extends HttpServlet {
         LOGGER.info("content-type for POST: {}", contentTypeString);
 
         JsonObject jsonObject = null;
-        if (true || contentTypeString.contains("text/json")) {
+        if (contentTypeString.contains("application/json")) {
             jsonObject = Json.createReader(request.getReader()).readObject(); 
         }
 
         //we have a resource type, try creating the resource type depending on the value:
         if (resourceType.equals("users")) {
+            if (jsonObject == null) {
+                //invalid json
+                JsonObjectBuilder jObjectBuilder = Json.createObjectBuilder();
+                JsonObject responseJson = jObjectBuilder.add("error", buildJsonErrorArray("Invalid json for request", "rest")).build();
+                response.getWriter().print(responseJson.toString());
+                return;
+
+            }
+
             User userToCreate = new User();
+            //currently all these are necessary, in the future could allow empty values
             userToCreate.first_name = jsonObject.getString("first_name");
             userToCreate.last_name = jsonObject.getString("last_name");
             userToCreate.email = jsonObject.getString("email");
-
 
             if (jsonObject.get("password") != null) {
                 userToCreate.setPassword(jsonObject.getString("password"));
@@ -169,19 +178,26 @@ public class RequestServlet extends HttpServlet {
         LOGGER.info("content-type for PUT: {}", contentTypeString);
 
         JsonObject jsonObject = null;
-        if (true || contentTypeString.contains("text/json")) {
+        if (contentTypeString.contains("application/json")) {
             jsonObject = Json.createReader(request.getReader()).readObject(); 
         }
 
         //we have a resource type, try creating the resource type depending on the value:
         if (resourceType.equals("users")) {
-            UserDBImpl userDBImpl = new UserDBImpl(pgConProvider);
+            if (jsonObject == null) {
+                //invalid json
+                JsonObjectBuilder jObjectBuilder = Json.createObjectBuilder();
+                JsonObject responseJson = jObjectBuilder.add("error", buildJsonErrorArray("Invalid json for request", "rest")).build();
+                response.getWriter().print(responseJson.toString());
+                return;
+
+            }
 
             User userToUpdate = new User();
             userToUpdate.uid = theId;
-            userToUpdate.first_name = jsonObject.getString("first_name");
-            userToUpdate.last_name = jsonObject.getString("last_name");
-            userToUpdate.email = jsonObject.getString("email");
+            userToUpdate.first_name = jsonObject.get("first_name") != null ? jsonObject.getString("first_name") : null;
+            userToUpdate.last_name = jsonObject.get("last_name") != null ? jsonObject.getString("last_name") : null;
+            userToUpdate.email = jsonObject.get("email") != null ? jsonObject.getString("email") : null;
 
 
             if (jsonObject.get("password") != null) {
@@ -189,6 +205,7 @@ public class RequestServlet extends HttpServlet {
                 userToUpdate.calculatePassHashWithNewSalt();
             }
 
+            UserDBImpl userDBImpl = new UserDBImpl(pgConProvider);
             boolean wasUpdated = false;;
             try {
                 wasUpdated = userDBImpl.update(userToUpdate);
