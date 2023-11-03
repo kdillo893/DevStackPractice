@@ -44,7 +44,7 @@ To package things that are currently within the target folder as a jar, use
 
 ``mvn package``
 
-... I think there are more that could be useful, like `compile` or otherwise, but not sure how those function.
+This puts things into a .war/.jar depending on the pom. This project uses WAR currently, and these will be used to deploy our servlets to Glassfish.
 
 ## web container setup
 In order to have the servlets load, a web container directs traffic to the packaged set of classes which handle requests.
