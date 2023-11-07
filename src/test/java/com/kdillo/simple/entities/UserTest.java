@@ -102,43 +102,21 @@ public class UserTest {
             MessageDigest sha512md = MessageDigest.getInstance("SHA-512"); 
             MessageDigest sha256md = MessageDigest.getInstance("SHA-256"); 
             MessageDigest sha1md = MessageDigest.getInstance("SHA-1"); 
-            MessageDigest md5 = MessageDigest.getInstance("MD5");
+            MessageDigest md5md = MessageDigest.getInstance("MD5");
 
-            byte[] testPwBytes = testPassword.getBytes();
-
-            byte[] outBytes = sha512md.digest(testPwBytes);
-            BigInteger hashAsBigNum = new BigInteger(1, outBytes);
-            StringBuilder hashTextSb = new StringBuilder(hashAsBigNum.toString(16));
-            //if the hash is too small, fill with 0's
-            while (hashTextSb.length() < 32) hashTextSb.insert(0, '0');
-            String hashOfPass = hashTextSb.toString();
+            String hashOfPass = getTheHash(sha512md, testPassword);
             System.out.println("has sha512: " + hashOfPass);
             assertNotEquals(theHash, hashOfPass);
 
-            outBytes = sha256md.digest(testPwBytes);
-            hashAsBigNum = new BigInteger(1, outBytes);
-            hashTextSb = new StringBuilder(hashAsBigNum.toString(16));
-            //if the hash is too small, fill with 0's
-            while (hashTextSb.length() < 32) hashTextSb.insert(0, '0');
-            hashOfPass = hashTextSb.toString();
+            hashOfPass = getTheHash(sha256md, testPassword);
             System.out.println("has sha256: " + hashOfPass);
             assertNotEquals(theHash, hashOfPass);
 
-            outBytes = sha1md.digest(testPwBytes);
-            hashAsBigNum = new BigInteger(1, outBytes);
-            hashTextSb = new StringBuilder(hashAsBigNum.toString(16));
-            //if the hash is too small, fill with 0's
-            while (hashTextSb.length() < 32) hashTextSb.insert(0, '0');
-            hashOfPass = hashTextSb.toString();
+            hashOfPass = getTheHash(sha1md, testPassword);
             System.out.println("has sha1: " + hashOfPass);
             assertNotEquals(theHash, hashOfPass);
 
-            outBytes = md5.digest(testPwBytes);
-            hashAsBigNum = new BigInteger(1, outBytes);
-            hashTextSb = new StringBuilder(hashAsBigNum.toString(16));
-            //if the hash is too small, fill with 0's
-            while (hashTextSb.length() < 32) hashTextSb.insert(0, '0');
-            hashOfPass = hashTextSb.toString();
+            hashOfPass = getTheHash(md5md, testPassword);
             System.out.println("has md5: " + hashOfPass);
             assertNotEquals(theHash, hashOfPass);
 
@@ -159,5 +137,16 @@ public class UserTest {
 
         //could measure the "difference" by converting the hex string into bits.
     }
-    
+
+    private String getTheHash(MessageDigest digest, String message) {
+
+        byte[] testPwBytes = message.getBytes();
+
+        byte[] outBytes = digest.digest(testPwBytes);
+        BigInteger hashAsBigNum = new BigInteger(1, outBytes);
+        StringBuilder hashTextSb = new StringBuilder(hashAsBigNum.toString(16));
+        //if the hash is too small, fill with 0's
+        while (hashTextSb.length() < 32) hashTextSb.insert(0, '0');
+        return hashTextSb.toString();
+    }
 }

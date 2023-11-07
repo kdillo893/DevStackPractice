@@ -76,23 +76,27 @@
             <version>${jakartaee-api.version}</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>jakarta.persistence</groupId>
-            <artifactId>jakarta.persistence-api</artifactId>
-            <version>${jakarta-persistence.version}</version>
-        </dependency>
         <!-- https://mvnrepository.com/artifact/jakarta.json/jakarta.json-api -->
         <dependency>
             <groupId>jakarta.json</groupId>
             <artifactId>jakarta.json-api</artifactId>
             <version>2.1.2</version>
         </dependency>
-
+        <!--  remove JPA until I use it.
+        <dependency>
+            <groupId>jakarta.persistence</groupId>
+            <artifactId>jakarta.persistence-api</artifactId>
+            <version>${jakarta-persistence.version}</version>
+        </dependency>
+        --> 
+        <!-- commenting out hibernate until I actually use it.
         <dependency>
             <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
             <version>${hibernate-core.version}</version>
         </dependency>
+        -->
+
     </dependencies>
 
     <!--Build-->
@@ -134,4 +138,5 @@
     <!--<pluginRepositories>...</pluginRepositories>-->
     <!--<distributionManagement>...</distributionManagement>-->
     <!--<profiles>...</profiles>-->
+
 </project>

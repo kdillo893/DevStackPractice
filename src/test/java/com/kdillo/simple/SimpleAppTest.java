@@ -1,15 +1,6 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/UnitTests/JUnit4TestClass.java to edit this template
- */
 package com.kdillo.simple;
 
-import com.kdillo.simple.db.PostgresqlConnectionProvider;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import static org.junit.Assert.*;
 
 /**
@@ -17,22 +8,22 @@ import static org.junit.Assert.*;
  * @author kdill
  */
 public class SimpleAppTest {
-    
+
     public SimpleAppTest() {
     }
-    
+
     @BeforeClass
     public static void setUpClass() {
     }
-    
+
     @AfterClass
     public static void tearDownClass() {
     }
-    
+
     @Before
     public void setUp() {
     }
-    
+
     @After
     public void tearDown() {
     }
@@ -47,7 +38,7 @@ public class SimpleAppTest {
         String expResult = "";
         String result = SimpleApp.randomString(len);
         assertEquals(expResult, result);
-        
+
         len = 128;
         result = SimpleApp.randomString(len);
         assertEquals(128, result.length());
@@ -57,5 +48,4 @@ public class SimpleAppTest {
         //TODO assert the randomness of the string is valid; secure random should be ok
     }
 
-    
 }

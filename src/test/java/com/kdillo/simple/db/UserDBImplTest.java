@@ -3,12 +3,7 @@ package com.kdillo.simple.db;
 import com.kdillo.simple.entities.User;
 import java.util.Optional;
 import java.util.UUID;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 import static org.junit.Assert.*;
 
 /**
@@ -25,6 +20,8 @@ public class UserDBImplTest {
     @BeforeClass
     public static void setUpClass() {
         //TODO: set up a connection provider that provides a connection to a test db
+        userDbImpl = new UserDBImpl(new PostgresqlConnectionProvider(null));
+
     }
 
     @AfterClass
@@ -44,18 +41,58 @@ public class UserDBImplTest {
      * Test of getPasswordSalt method, of class UserDBImpl.
      */
     @Test
-    @Ignore
     public void testGetPasswordSalt() {
         System.out.println("getPasswordSalt");
-
         User user = new User();
-        user.uid = UUID.randomUUID();
 
-        Optional<User> expResult = null;
+        //no UUID, can't query for the user. Optional should be empty.
+        Optional<User> expected = Optional.empty();
         Optional<User> result = userDbImpl.getPasswordSalt(user);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertEquals(expected, result);
+
+        //user.uid = UUID.randomUUID();
+    }
+
+    @Test
+    public void testDeleteById() {
+         
+        //need valid IDs to delete.
+        boolean result = userDbImpl.deleteById(null);
+        assertEquals(false, result);
+
+    }
+
+
+    @Test
+    public void testUpdate() throws Exception {
+
+        User user = null;
+        //need valid IDs to update.
+        boolean expected = false;
+        boolean result = userDbImpl.update(user);
+        assertEquals(expected, result);
+
+        //missing editable columns
+        user = new User();
+
+        result = userDbImpl.update(user);
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void testAdd() throws Exception {
+
+        User user = null;
+        //need valid user to add.
+        boolean expected = false;
+        boolean result = userDbImpl.update(user);
+        assertEquals(expected, result);
+
+        //missing needed info for creating a user
+        user = new User();
+
+        result = userDbImpl.update(user);
+        assertEquals(expected, result);
     }
 
 }
