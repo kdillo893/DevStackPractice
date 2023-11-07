@@ -33,7 +33,7 @@ public class UserDBImpl {
 
         while (resultSet.next()) {
 
-            //getting all the columns and setting user object.
+            //getting all the columns and setting user userect.
             User aUser = new User(UUID.fromString(resultSet.getString(1)),
                     resultSet.getString(2),
                     resultSet.getString(3),
@@ -196,7 +196,7 @@ public class UserDBImpl {
             ResultSet resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()) {
-                //getting all the columns and setting user object.
+                //getting all the columns and setting user userect.
                 return Optional.of(new User(UUID.fromString(resultSet.getString(1)),
                             resultSet.getString(2),
                             resultSet.getString(3),
@@ -221,12 +221,12 @@ public class UserDBImpl {
         return Optional.empty();
     }
 
-    public UUID add(User obj) {
+    public UUID add(User user) {
 
-        if (!obj.hasPassword() || obj.email == null)
+        if (user == null || !user.hasPassword() || user.email == null)
             return null;
 
-        obj.calculatePassHashWithNewSalt();
+        user.calculatePassHashWithNewSalt();
 
         try {
             Connection conn = this.connectionProvider.getConnection();
@@ -239,11 +239,11 @@ public class UserDBImpl {
             PreparedStatement pStatement = conn.prepareStatement(statementString);
 
             //setting attributes of prepared statement 1=fn, 2=ln, 3=email, 4=uid
-            pStatement.setString(1, obj.first_name);
-            pStatement.setString(2, obj.last_name);
-            pStatement.setString(3, obj.email);
-            pStatement.setString(4, obj.getPassHash());
-            pStatement.setString(5, obj.getPassSalt());
+            pStatement.setString(1, user.first_name);
+            pStatement.setString(2, user.last_name);
+            pStatement.setString(3, user.email);
+            pStatement.setString(4, user.getPassHash());
+            pStatement.setString(5, user.getPassSalt());
 
             ResultSet resultSet = pStatement.executeQuery();
 
@@ -264,33 +264,33 @@ public class UserDBImpl {
         return null;
     }
 
-    public boolean update(User obj) throws Exception {
+    public boolean update(User user) throws Exception {
 
         //guard clauses:
-        //if no UID return false.
-        if (obj.uid == null)
+        //no user, if no UID return false.
+        if (user == null || user.uid == null)
             return false;
 
         //if no updatable attributes to set, return false
-        if (!(obj.last_name != null
-                    || obj.first_name != null
-                    || obj.email != null
-                    || obj.hasPassword())
+        if (!(user.last_name != null
+                    || user.first_name != null
+                    || user.email != null
+                    || user.hasPassword())
            )
             return false;
 
-        Optional<User> userInDb = this.getById(obj.uid);
+        Optional<User> userInDb = this.getById(user.uid);
         if (userInDb.isEmpty())
             return false;
 
         User updateUserObj = userInDb.get();
 
-        obj.uid = updateUserObj.uid;
-        if (obj.first_name == null) obj.first_name = updateUserObj.first_name;
-        if (obj.last_name == null) obj.last_name = updateUserObj.last_name;
-        if (obj.email == null) obj.email = updateUserObj.email;
-        if (obj.hasPassword()) {
-            obj.calculatePassHashWithNewSalt();
+        user.uid = updateUserObj.uid;
+        if (user.first_name == null) user.first_name = updateUserObj.first_name;
+        if (user.last_name == null) user.last_name = updateUserObj.last_name;
+        if (user.email == null) user.email = updateUserObj.email;
+        if (user.hasPassword()) {
+            user.calculatePassHashWithNewSalt();
         }
 
         try {
@@ -303,21 +303,21 @@ public class UserDBImpl {
                 " WHERE uid = ?";
             PreparedStatement pStatement = conn.prepareStatement(statementString);
 
-            pStatement.setString(1, obj.first_name);
-            pStatement.setString(2, obj.last_name);
-            pStatement.setString(3, obj.email);
-            pStatement.setObject(4, obj.uid);
+            pStatement.setString(1, user.first_name);
+            pStatement.setString(2, user.last_name);
+            pStatement.setString(3, user.email);
+            pStatement.setObject(4, user.uid);
 
             int effectedLines = pStatement.executeUpdate();
 
             //are we also updating the password?
-            if (obj.hasPassword()) {
+            if (user.hasPassword()) {
                 statementString = "UPDATE " + USERS_TABLE_NAME +
                     " SET (pass_hash, pass_salt, updated) = (?, ?, now()) WHERE uid = ?";
                 pStatement = conn.prepareStatement(statementString);
-                pStatement.setString(1, obj.getPassHash());
-                pStatement.setString(2, obj.getPassSalt());
-                pStatement.setObject(3, obj.uid);
+                pStatement.setString(1, user.getPassHash());
+                pStatement.setString(2, user.getPassSalt());
+                pStatement.setObject(3, user.uid);
             }
 
             //autocommit is enabled, can turn it off if I want.
@@ -335,8 +335,8 @@ public class UserDBImpl {
         return false;
     }
 
-    public boolean delete(User obj) throws Exception {
-        return deleteById(obj.uid);
+    public boolean delete(User user) throws Exception {
+        return deleteById(user.uid);
     }
 
     public boolean deleteById(UUID uuid) {

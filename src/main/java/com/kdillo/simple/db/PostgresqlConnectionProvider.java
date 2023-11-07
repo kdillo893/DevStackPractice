@@ -23,7 +23,9 @@ public class PostgresqlConnectionProvider {
         this.dbName = props.getProperty("db.name");
         this.dbSchema = props.getProperty("db.schema");
         this.dbHost = props.getProperty("db.host");
-        this.dbPort = Integer.parseInt(props.getProperty("db.port"));
+        this.dbPort = props.getProperty("db.port") != null ?
+            Integer.parseInt(props.getProperty("db.port")) :
+            5432;
 
     }
 

@@ -2,6 +2,7 @@ package com.kdillo.simple.db;
 
 import com.kdillo.simple.entities.User;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.UUID;
 import org.junit.*;
 import static org.junit.Assert.*;
@@ -20,7 +21,9 @@ public class UserDBImplTest {
     @BeforeClass
     public static void setUpClass() {
         //TODO: set up a connection provider that provides a connection to a test db
-        userDbImpl = new UserDBImpl(new PostgresqlConnectionProvider(null));
+        Properties properties = new Properties();
+        PostgresqlConnectionProvider connectionProvider = new PostgresqlConnectionProvider(properties);
+        userDbImpl = new UserDBImpl(connectionProvider);
 
     }
 
