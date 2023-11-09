@@ -71,3 +71,25 @@ Looking around to improve speed of Json, found a link to a github repository whi
 I had been using Gson or Jakarta Json because it was easiest, but it looks like for a simple project I should be using dsl-json or fastjson.
 
 ... IDK
+
+## NextJS
+
+Was playing around with some front-end frameworks and landed on NextJS.
+
+There are many server-side tasks that can be performed where you're running the NextJS 
+server to the point where I could almost entirely ditch Java and utilize the front-end
+frameworks and some existing database access wrappers to accomplish a similar job.
+
+I wanted to create a "playground" for myself to do things in both back-end and front-end
+and figure things out.
+
+# Future
+
+I don't like Java much right now, but it is something I'm familiar with and would
+only need to learn a couple things to feel like my skills are at an "advanced" level.
+
+What are those things?:
+* how to use annotations to direct the java compilers,
+* digging into how things are compiled and linked (like I've done with C)
+* Streaming objects
+* ...
