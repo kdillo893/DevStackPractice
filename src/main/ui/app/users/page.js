@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -54,9 +54,8 @@ export default function() {
                 </TableHead>
                 <TableBody>
                     {
-                        users?.map( (aUser) => {
-                            console.log(aUser.uid);
-                            return <UserRow {... aUser} />
+                        users?.map( (aUser, idx) => {
+                            return <UserRow key={idx} {... aUser} />
                         })
                     }
                 </TableBody>
