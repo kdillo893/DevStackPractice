@@ -15,7 +15,7 @@ public class Document implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="id", nullable = false)
+    @Column(name="docid", nullable = false)
     public long id;
 
     @Column(name="uid")

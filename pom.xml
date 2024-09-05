@@ -28,8 +28,8 @@
         <cargo.version>1.10.7</cargo.version>
         <compiler-plugin.version>3.11.0</compiler-plugin.version>
         <hibernate-core.version>6.3.1.Final</hibernate-core.version>
-        <jakartaee-api.version>10.0.0</jakartaee-api.version>
-        <jakartaee-persistence.version>3.1.0</jakartaee-persistence.version>
+        <jakarta-api.version>10.0.0</jakarta-api.version>
+        <jakarta-persistence-api.version>3.1.0</jakarta-persistence-api.version>
         <maven.compiler.release>17</maven.compiler.release>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
@@ -73,22 +73,18 @@
         <dependency>
             <groupId>jakarta.platform</groupId>
             <artifactId>jakarta.jakartaee-api</artifactId>
-            <version>${jakartaee-api.version}</version>
+            <version>${jakarta-api.version}</version>
             <scope>provided</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/jakarta.json/jakarta.json-api -->
         <dependency>
             <groupId>jakarta.json</groupId>
             <artifactId>jakarta.json-api</artifactId>
-            <version>2.1.2</version>
         </dependency>
-        <!--  remove JPA until I use it.
         <dependency>
             <groupId>jakarta.persistence</groupId>
             <artifactId>jakarta.persistence-api</artifactId>
-            <version>${jakarta-persistence.version}</version>
         </dependency>
-        --> 
         <!-- commenting out hibernate until I actually use it.
         <dependency>
             <groupId>org.hibernate.orm</groupId>
@@ -106,7 +102,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
-                <version>${war-plugin.version}</version>
                 <configuration>
                     <outputDirectory>/home/share/glassfish7/glassfish/domains/mysimpledomain/autodeploy</outputDirectory>
                     </configuration>
@@ -114,7 +109,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${compiler-plugin.version}</version>
             </plugin>
             <!-- Execute 'mvn clean package cargo:run' to run the application. -->
             <plugin>
@@ -138,8 +132,8 @@
     <!--<ciManagement>...</ciManagement>-->
     <!--<mailingLists>...</mailingLists>-->
     <scm>
-        <connection>scm:git:git://github.com/kdillo893/simple.git</connection>
-        <url>https://github.com/kdillo893/simple</url>
+        <connection>scm:git:git://github.com/kdillo893/CRUD.git</connection>
+        <url>https://github.com/kdillo893/CRUD</url>
     </scm>
     <!--<prerequisites>...</prerequisites>-->
     <!--<repositories>...</repositories>-->
