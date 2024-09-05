@@ -1,6 +1,8 @@
 # CRUD application
 Creating a small application that includes a database connection, object structures, some API, and some front-end structure.
 
+TODO: I was making the setup way too complicated and using a bunch of different tools and dependencies. I want to rework this to be much simpler to set up. Setting up your own postgres DB from scratch is a pain, and there are tools to do that or public containers via docker to make the process easier. Another thing would be to have a bash script which does all the granular setup so that others who try to redo this repo won't get frustrated and give up (like me in the future)
+
 ## postgres setup
 in order to have a Postgres database and other things, need to download the client and set things up. Some arch instructions here: https://wiki.archlinux.org/title/PostgreSQL
 
@@ -25,9 +27,11 @@ For "from scratch" database settings, modify the following files within your Pos
       1. example ```CREATE ROLE my_db_role WITH PASSWORD 'testdb*123' LOGIN SUPERUSER CREATEDB;```
    5. exit from the postgres psql and user session and test logging in with your role/user with password using ```psql -U [role/user] -d [dbname]``` to see if your user can access the things specified.
 
+Still solving some permission issues, I had some issues when setting it up again.
 
-## TODO: move from Maven to Gradle
-Gradle looks so much nicer and has a lot less wrapping of elements for which dependencies are required.
+
+## Dependency management system
+Gradle looks so much nicer and has a lot less wrapping of elements for which dependencies are required. Tried both across different projects, not much of a difference but gradle packages things to run with the project.
 
 ## maven 
 I'm mainly using Maven to import and download jars for runtime rather than dealing with "finding a dependency around the web and downloading separately".
