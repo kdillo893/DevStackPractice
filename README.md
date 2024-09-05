@@ -3,37 +3,49 @@ Creating a small application that includes a database connection, object structu
 
 TODO: I was making the setup way too complicated and using a bunch of different tools and dependencies. I want to rework this to be much simpler to set up. Setting up your own postgres DB from scratch is a pain, and there are tools to do that or public containers via docker to make the process easier. Another thing would be to have a bash script which does all the granular setup so that others who try to redo this repo won't get frustrated and give up (like me in the future)
 
-## postgres setup
-in order to have a Postgres database and other things, need to download the client and set things up. Some arch instructions here: https://wiki.archlinux.org/title/PostgreSQL
+## Prerequisites
 
-1. download and install from the latest here for the given platform: https://www.postgresql.org/download/
-2. enable the services for PostgreSQL and start them (in arch/manjaro, this is ```systemctl enable/start postgresql``` )
-3. With Postgres started, create the db. can either be with ```createdb [dbname]```. If unable to create because of no data directory location, point Postgres to a new data directory with ```initdb -D path/to/db/directory```. and follow from scratch instructions.
-4. in the codebase, I will use the Postgresql Java database connector (JDBC). This can be downloaded and added as a library or included in a pom.xml for maven and installed as a dependency.
-5. for accessing the database from our JDBC connection, we need to add properties that will be read by the driver manager when making a connection. This needs a URL, user, and password. Additional options can be added, as referenced from https://jdbc.postgresql.org/documentation/use/.
-   1. The user would be your db user or role. (can add as property with "user" or as parameter user)
-   2. password is what you configured for that user/role (property "password" or )
-   3. if using passwords across a network for database connections (not local), use the property "ssl" as "true".
-   4. url will be specified in ```DriverManager.getConnection(url, properties);```; url is of a format described with the JDBC site. for local, using ```jdbc:postgresql://localhost:[port]/[dbname]?currentSchema=[schema]```.
-6. asdf
+Database -- using PostgreSQL. Create and instance "webapp" schema, follow the src/main/db/initdb.sql script for setting that up.
+   * Configuration of PostgreSQL db either use docker image or follow setup in other PSQL_README.md
+Web Container? -- determine if I need to use that still
+
+## Build
+
+TODO
+
+## running
+
+### old runtime
+The runtime is currently operating with Servlets being handled through a web container. If I decide to go back to "run my own Http Handling garbage", the below will apply
+
+### including dependencies with runtime
+Taking notes from https://howtodoinjava.com/java-examples/set-classpath-command-line/ on some of the basics for running Java applications from the command line without an IDE managing all those tasks.
+When running from the command line, you need to include the dependencies from external libraries (namely Postgresql in this case) on the classpath. This can be done within IDE, but if I wanted to run the application OUTSIDE an IDE, I would need to know how to include various dependencies needed for runtime.
+
+The way to run this is to include in the classpath all dependency jars or source directories (with the base being "where the classes are contained"). An example of the run with Java in a terminal on Unix would be this:
+
+``java -cp target/classes:$MVN_REPO/org/postgresql/postgresql/42.6.0/postgresql-42.6.0.jar com.kdillo.simple.SimpleApp``
+
+This specifies that I will include in the classpath with the -cp option all the compiled classes from the "target" folder for my application and the PostgreSQL jar and run the main method of the class ```SimpleApp```. Alternatively, you can set a path or classpath environment variable which would include all the dependencies and compiled application classes for the project. The way to do this in Unix is:
+
+```export CLASSPATH=[the stuff above for -cp option]```
+
+If you have a directory with a set amount of jar or class files you wish to include, the classpath is capable of using wildcards. Classes tend to be referenced from the root of the directory where they are referenced from, while the jar needs to be explicitly included, or can be wild-carded with *.
+
+```export CLASSPATH=extra/classes:extra/jars/*```
 
 
-For "from scratch" database settings, modify the following files within your Postgres data directory (in my case, ```/var/lib/pgsql/data/```).
-   1. modify the ```postgresql.conf``` file, either un-comment the line for "password_encryption" or write in ```password_encryption = scram-sha-256```  for the most secure option or ``md5`` for older databases. 
-   2. modify the ```pg_hba.conf``` to use the given encryption type under the "TRUST" columns for the given space where you'll access the database.
-   3. from the Postgres user (sudo -su postgres), run ```psql```, then create a new user and role with the desired name and password.
-      1. example: ```CREATE USER mydbuser WITH PASSWORD 'testdb*123' LOGIN SUPERUSER CREATEDB;```; LOGIN, SUPERUSER and CREATEDB are privilege examples. for simple things and testing, can just use superuser and look for further configuration later.
-   4. if you want to specify a role instead of a user, you can do the following:
-      1. example ```CREATE ROLE my_db_role WITH PASSWORD 'testdb*123' LOGIN SUPERUSER CREATEDB;```
-   5. exit from the postgres psql and user session and test logging in with your role/user with password using ```psql -U [role/user] -d [dbname]``` to see if your user can access the things specified.
+### Running the main
+In order to run the application, follow the above steps for adding the required to the classpath, then run
 
-Still solving some permission issues, I had some issues when setting it up again.
+`java com.kdillo.simple.SimpleApp`
+
 
 
 ## Dependency management system
-Gradle looks so much nicer and has a lot less wrapping of elements for which dependencies are required. Tried both across different projects, not much of a difference but gradle packages things to run with the project.
+Gradle looks nicer and has less "fluff". Tried both across different projects, not much of a difference but gradle includes in project some packages to run.
 
-## maven 
+### maven 
 I'm mainly using Maven to import and download jars for runtime rather than dealing with "finding a dependency around the web and downloading separately".
 
 Maven can be used to install (package in a target directory) all the sources from my application and bundle them neatly.
@@ -77,7 +89,7 @@ deploying the war to the domain:
 ```asadmin undeploy <thewarjar name without file extension>```
 
 ### Tomcat/TomEE
-Google it...
+Install from: https://tomcat.apache.org/
 
 Set environment variables to CATALINA_HOME to the installation location, and JAVA_HOME to the java sdk base.
 
@@ -91,32 +103,4 @@ Options to autoDeploy or deployOnStartup can make it easier to manage...
 https://tomcat.apache.org/tomcat-10.1-doc/deployer-howto.html
 
 
-## running
 
-
-## old runtime
-The runtime is currently operating with Servlets being handled through a web container. If I decide to go back to "run my own Http Handling garbage", the below will apply
-
-### including dependencies with runtime
-Taking notes from https://howtodoinjava.com/java-examples/set-classpath-command-line/ on some of the basics for running Java applications from the command line without an IDE managing all those tasks.
-When running from the command line, you need to include the dependencies from external libraries (namely Postgresql in this case) on the classpath. This can be done within IDE, but if I wanted to run the application OUTSIDE an IDE, I would need to know how to include various dependencies needed for runtime.
-
-The way to run this is to include in the classpath all dependency jars or source directories (with the base being "where the classes are contained"). An example of the run with Java in a terminal on Unix would be this:
-
-``java -cp target/classes:$MVN_REPO/org/postgresql/postgresql/42.6.0/postgresql-42.6.0.jar com.kdillo.simple.SimpleApp``
-
-This specifies that I will include in the classpath with the -cp option all the compiled classes from the "target" folder for my application and the PostgreSQL jar and run the main method of the class ```SimpleApp```. Alternatively, you can set a path or classpath environment variable which would include all the dependencies and compiled application classes for the project. The way to do this in Unix is:
-
-```export CLASSPATH=[the stuff above for -cp option]```
-
-If you have a directory with a set amount of jar or class files you wish to include, the classpath is capable of using wildcards. Classes tend to be referenced from the root of the directory where they are referenced from, while the jar needs to be explicitly included, or can be wild-carded with *.
-
-```export CLASSPATH=extra/classes:extra/jars/*```
-
-
-### Running the main
-In order to run the application, follow the above steps for adding the required to the classpath, then run
-
-`java com.kdillo.simple.SimpleApp`
-
-If you want to run with other options for the java runtime, feel free.
