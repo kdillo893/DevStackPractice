@@ -1,13 +1,13 @@
 -- initialize the schema and tables with basic stuff..
 
--- DROP DATABASE simple;
-CREATE DATABASE simple;
+-- DROP DATABASE crud;
+-- CREATE DATABASE crud;
 
 --below only work if supplying this script to psql directly, comment out otherwise.
 -- \g
--- \c simple
+-- \c crud
 
---select the simple db for operations after this.
+--select the crud db for operations after this.
 
 -- DROP SCHEMA webapp;
 CREATE SCHEMA IF NOT EXISTS webapp;
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS  webapp.users (
 );
 
 --Document table
-CREATE OR REPLACE TABLE webapp.documents (
+CREATE TABLE IF NOT EXISTS webapp.documents (
   docid UUID,
   doc_url varchar(256),
   filename varchar(500),
@@ -36,3 +36,4 @@ CREATE OR REPLACE TABLE webapp.documents (
 );
 
 --TODO: initialize with some basic values
+
