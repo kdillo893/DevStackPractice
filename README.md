@@ -59,12 +59,6 @@ To stop glassfish, do the following
 
 Enterprise stuff is actually stupid.
 
-~~Currently just using cargo, might fix in the future to have my own script to launch glassfish.
-```
-mvn cargo:run
-```
-~~
-
 ## [Web Container Setup](#web-container-setup)
 In order to have the servlets load, a web container directs traffic to the packaged set of classes that handle requests.
 The web.xml is the deployment descriptor for which endpoints in the overall context direct to where.
