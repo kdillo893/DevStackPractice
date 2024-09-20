@@ -39,10 +39,15 @@ Modify the following files within your Postgres data directory.
    2. ``pg_hba.conf``
       * Adjust the ``TRUST`` column to match your desired password encryption in step 1.
    3. Create a new user to manage this database.
-      * run ``psql`` with 
-      1. example: ```CREATE USER mydbuser WITH PASSWORD 'testdb*123' LOGIN SUPERUSER CREATEDB;```; LOGIN, SUPERUSER and CREATEDB are privilege examples. for simple things and testing, can just use superuser and look for further configuration later.
+      * run ``psql`` with postgres user and do something like below, replace user name and password to your liking.
+      ```
+      CREATE USER mydbuser WITH PASSWORD 'testdb*123' LOGIN SUPERUSER CREATEDB;
+      ```
+      LOGIN, SUPERUSER and CREATEDB are privilege examples. for simple things and testing, can just use superuser and look for further configuration later.
    4. if you want to specify a role instead of a user, you can do the following:
-      1. example ```CREATE ROLE my_db_role WITH PASSWORD 'testdb*123' LOGIN SUPERUSER CREATEDB;```
+      ```
+      CREATE ROLE my_db_role WITH PASSWORD 'testdb*123' LOGIN SUPERUSER CREATEDB;
+      ```
    5. exit from the postgres psql and user session and test logging in with your role/user with password using ```psql -U [role/user] -d [dbname]``` to see if your user can access the things specified.
 
 Still solving some permission issues, I had some issues when setting it up again.

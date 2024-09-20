@@ -19,7 +19,8 @@ public class UserDBImpl {
 
     private static final String USERS_TABLE_NAME = "users";
 
-    //TODO: figure out if there's a way to protect deleting things from db side.
+	// TODO: figure out if there's a way to protect deleting things from db side.
+	// Also should probably have this in an external place or just enforced in DB-land
     private static final UUID ADMIN_USER_ID = UUID.fromString("f7062c7a-d3ec-485c-898d-cca6ade0512a");
 
     private final PostgresqlConnectionProvider connectionProvider;
@@ -69,6 +70,7 @@ public class UserDBImpl {
             LOGGER.info("Preparing getAllUsers with parameters from User: {}", user.toString());
             String theQuery = "SELECT uid, first_name, last_name, email, created, updated, pass_hash, pass_salt FROM users";
 
+			// TODO: make the optional where's more condensed... there's definitely a better way
             Map<Integer, Object> queryWhereMap = new HashMap<>(); 
             if (user.email != null) {
                 if (parmCount == 0)
@@ -161,7 +163,8 @@ public class UserDBImpl {
     }
 
     /**
-     * getAll without any logic for filtering by users; no offset/limit
+	 * getAll without any logic for filtering by users; b/c no offset/limit, have hard cap.
+	 * could this just do "getAll(new User())" ? yes but want to avoid logic for certain ops.
      * @return 
      */
     public List<User> getAll() {
@@ -169,8 +172,8 @@ public class UserDBImpl {
         try {
             Connection conn = this.connectionProvider.getConnection();
 
-            String sqlQuery = "SELECT uid, first_name, last_name, email, created, updated, pass_hash, pass_salt FROM users" +
-                " LIMIT " + RETRIEVE_LIMIT + " ;";
+			String sqlQuery = "SELECT uid, first_name, last_name, email, created, updated, pass_hash, pass_salt FROM users"
+					+ " LIMIT " + RETRIEVE_LIMIT + " ;";
             PreparedStatement pStatement = conn.prepareStatement(sqlQuery);
 
             ResultSet resultSet = pStatement.executeQuery();
@@ -190,7 +193,8 @@ public class UserDBImpl {
         try {
             Connection conn = this.connectionProvider.getConnection();
             conn.setAutoCommit(true);
-            PreparedStatement preparedStatement = conn.prepareStatement("SELECT uid, first_name, last_name, email, created, updated, pass_hash, pass_salt FROM users WHERE uid = ? LIMIT 1;");
+			PreparedStatement preparedStatement = conn.prepareStatement(
+					"SELECT uid, first_name, last_name, email, created, updated, pass_hash, pass_salt FROM users WHERE uid = ? LIMIT 1;");
             preparedStatement.setObject(1, uuid);
 
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -216,11 +220,13 @@ public class UserDBImpl {
         return Optional.empty();
     }
 
+	//TODO: didn't implement. what the hell was this?
     public Optional<User> getPasswordSalt(User user) {
 
         return Optional.empty();
     }
 
+	//TODO: make an "add and return"
     public UUID add(User user) {
 
         if (user == null || !user.hasPassword() || user.email == null)
@@ -229,13 +235,12 @@ public class UserDBImpl {
         user.calculatePassHashWithNewSalt();
 
         try {
+			String columnsCommaSeparated = String.format("(%s, %s, %s, %s, %s, %s, %s, %s)",
+				"uid", "first_name", "last_name", "email", "created", "updated", "pass_hash", "pass_salt");
+			String statementString = "INSERT INTO " + USERS_TABLE_NAME + columnsCommaSeparated
+					+ " VALUES (default, ?, ?, ?, now(), now(), ?, ?)" + " RETURNING uid";
+
             Connection conn = this.connectionProvider.getConnection();
-            String columnsCommaSeparated = String.format("(%s, %s, %s, %s, %s, %s, %s, %s)",
-                    "uid", "first_name", "last_name", "email", "created", "updated", "pass_hash", "pass_salt");
-            String statementString = "INSERT INTO " + USERS_TABLE_NAME +
-                columnsCommaSeparated +
-                " VALUES (default, ?, ?, ?, now(), now(), ?, ?)" +
-                " RETURNING uid";
             PreparedStatement pStatement = conn.prepareStatement(statementString);
 
             //setting attributes of prepared statement 1=fn, 2=ln, 3=email, 4=uid
@@ -252,6 +257,7 @@ public class UserDBImpl {
                 UUID userId = (UUID) resultSet.getObject(1);
 
                 if (userId != null)
+					LOGGER.info("Why God Why!?");
                     return userId;
             }
         } catch (SQLException sqlException) {
@@ -286,9 +292,12 @@ public class UserDBImpl {
         User updateUserObj = userInDb.get();
 
         user.uid = updateUserObj.uid;
-        if (user.first_name == null) user.first_name = updateUserObj.first_name;
-        if (user.last_name == null) user.last_name = updateUserObj.last_name;
-        if (user.email == null) user.email = updateUserObj.email;
+		if (user.first_name == null)
+			user.first_name = updateUserObj.first_name;
+		if (user.last_name == null)
+			user.last_name = updateUserObj.last_name;
+		if (user.email == null)
+			user.email = updateUserObj.email;
         if (user.hasPassword()) {
             user.calculatePassHashWithNewSalt();
         }
@@ -312,8 +321,8 @@ public class UserDBImpl {
 
             //are we also updating the password?
             if (user.hasPassword()) {
-                statementString = "UPDATE " + USERS_TABLE_NAME +
-                    " SET (pass_hash, pass_salt, updated) = (?, ?, now()) WHERE uid = ?";
+				statementString = "UPDATE " + USERS_TABLE_NAME
+						+ " SET (pass_hash, pass_salt, updated) = (?, ?, now()) WHERE uid = ?";
                 pStatement = conn.prepareStatement(statementString);
                 pStatement.setString(1, user.getPassHash());
                 pStatement.setString(2, user.getPassSalt());

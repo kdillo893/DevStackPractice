@@ -30,14 +30,40 @@ mvn clean
 Get all the dependencies for maven in the repo and package with maven
 ```
 mvn install
-mvn package
 ```
 
+Before packaging the WAR, we need to instance a domain for glassfish with basic configs.
+```
+/path/to/glassfish/bin/asadmin create-domain mydomain
+```
+Follow the prompt to do some basic config for an admin part of glassfish I will never bother touching.
+
+
+NOW create the war and the pom will stuff it in that folder:
+```
+mvn package
+```
+This should put everything into a WAR at the glassfish directory specified in ``pom.xml``. This should be something like
+``/path/to/glassfish7/glassfish/domains/mydomain/autodeploy/simplest.war``
+
 ## [Running](#running)
-Currently just using cargo, might fix in the future to have my own script to launch glassfish.
+Navigate to glassfish, start it up completely with the following
+```
+/path/to/glassfish/bin/asadmin start-domain mydomain
+```
+
+To stop glassfish, do the following 
+```
+/path/to/glassfish/bin/asadmin stop-domain mydomain
+```
+
+Enterprise stuff is actually stupid.
+
+~~Currently just using cargo, might fix in the future to have my own script to launch glassfish.
 ```
 mvn cargo:run
 ```
+~~
 
 ## [Web Container Setup](#web-container-setup)
 In order to have the servlets load, a web container directs traffic to the packaged set of classes that handle requests.

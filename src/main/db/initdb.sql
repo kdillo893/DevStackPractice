@@ -14,7 +14,7 @@ CREATE SCHEMA IF NOT EXISTS webapp;
 
 --User table
 CREATE TABLE IF NOT EXISTS  webapp.users (
-  uid UUID,
+  uid UUID NOT NULL DEFAULT gen_random_uuid(),
   first_name varchar(160),
   last_name varchar(160),
   email varchar(256),
@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS  webapp.users (
 
 --Document table
 CREATE TABLE IF NOT EXISTS webapp.documents (
-  docid UUID,
+  docid UUID NOT NULL DEFAULT gen_random_uuid(),
   doc_url varchar(256),
   filename varchar(500),
   created timestamp,
