@@ -1,7 +1,7 @@
 # [CRUD application](#crud-application)
 Creating a small application that includes a database connection, object structures, some API, and some front-end structure.
 
- **WARNING:** I was making the setup way too complicated and using a bunch of different tools and dependencies. I want to rework this to be much simpler to set up. Setting up your own postgres DB from scratch is a pain, and there are tools to do that or public containers via docker to make the process easier. Another thing would be to have a bash script which does all the granular setup so that others who try to redo this repo won't get frustrated and give up (like me in the future)
+ **WARNING:** I was making the setup way too complicated and using a bunch of different tools and dependencies. I want to rework this to be much simpler to set up. Setting up your own postgres DB from scratch is a pain, and there are tools to do that or public containers via docker to make the process easier. Another thing would be to have a bash script which does all the granular setup so that others who try to redo this repo won't get frustrated and give up (like me in the future). Also, Servlets are cool and all, but why didn't I just do a simple HTTP server myself that I run and pipe things to? IDK! It's not great, but it works.
 
 ## [Prerequisites](#prerequisites)
 
