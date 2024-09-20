@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- *
+ * this is currently useless, don't bother. It does nothing.
  * @author kdill
  */
 @Retention(RetentionPolicy.RUNTIME)

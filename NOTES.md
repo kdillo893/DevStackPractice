@@ -12,6 +12,7 @@ Options:
 * Spring Web or MVC
 * Hibernate
 * JPA framework
+* I could just run a front-end server and back-end server myself and have them point at each other.
 
 https://www.digitalocean.com/community/tutorials/java-web-application-tutorial-for-beginners
 Specific known examples from my past with Intuit/Itrios involve the servlet/jsp handling. (Apache, Tomcat, 
@@ -85,11 +86,12 @@ and figure things out.
 
 # Future
 
-I don't like Java much right now, but it is something I'm familiar with and would
+Java is something I'm familiar with and would
 only need to learn a couple things to feel like my skills are at an "advanced" level.
 
 What are those things?:
 * how to use annotations to direct the java compilers,
-* digging into how things are compiled and linked (like I've done with C)
-* Streaming objects
+* digging into how things are compiled and linked (like I've done with C),
+* Streaming objects,
+* learning some of the common libraries,
 * ...
