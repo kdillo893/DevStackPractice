@@ -38,6 +38,8 @@ Before packaging the WAR, we need to instance a domain for glassfish with basic 
 ```
 Follow the prompt to do some basic config for an admin part of glassfish I will never bother touching.
 
+:> [!WARNING]
+> NOTE! The domain config might set the http listening ports to something not standard or desired. You can change these in the domain configuration for glassfish within the ``domain.xml`` file located in the directory created by the above command with the ``http-listener-1`` and ``http-listener-2`` tags.
 
 NOW create the war and the pom will stuff it in that folder:
 ```
@@ -51,6 +53,7 @@ Navigate to glassfish, start it up completely with the following
 ```
 /path/to/glassfish/bin/asadmin start-domain mydomain
 ```
+
 
 To stop glassfish, do the following 
 ```
