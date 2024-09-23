@@ -27,12 +27,14 @@ CREATE TABLE IF NOT EXISTS  webapp.users (
 
 --Document table
 CREATE TABLE IF NOT EXISTS webapp.documents (
-  docid UUID NOT NULL DEFAULT gen_random_uuid(),
+  docid bigint NOT NULL GENERATED AS IDENTITY, 
+  uid UUID,
   doc_url varchar(256),
   filename varchar(500),
   created timestamp,
   updated timestamp,
   PRIMARY KEY(docid)
+  FOREIGN KEY(uid) REFERENCES webapp.user(uid)
 );
 
 --TODO: initialize with some basic values
