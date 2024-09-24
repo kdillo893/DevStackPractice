@@ -61,6 +61,7 @@ This should put everything into a WAR at the glassfish directory specified in ``
 ### Frontend
 In order to run next stuff, this needs the next package. Do the following to get the dependencies from package.json
 ```
+cd ./src/main/webapp
 npm install
 ```
 
