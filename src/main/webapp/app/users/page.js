@@ -16,7 +16,7 @@ function UserRow({ uid, first_name, last_name, email}) {
     )
 }
 
-export default function() {
+export default function User() {
     const [users, setUsers] = useState([]);
     const [usersLoaded, setUsersLoaded] = useState(false);
 

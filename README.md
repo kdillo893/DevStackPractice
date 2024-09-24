@@ -1,7 +1,15 @@
 # [CRUD application](#crud-application)
 Creating a small application that includes a database connection, object structures, some API, and some front-end structure.
 
- **WARNING:** I was making the setup way too complicated and using a bunch of different tools and dependencies. I want to rework this to be much simpler to set up. Setting up your own postgres DB from scratch is a pain, and there are tools to do that or public containers via docker to make the process easier. Another thing would be to have a bash script that does all the granular setup so that others who try to redo this repo won't get frustrated and give up (like me in the future). I REALLY SHOULD HAVE JUST DONE MY OWN SERVER THINGS! SERVLETS ARE WEIRD, AND SO IS ENTERPRISE STUFF!
+
+:> [!WARNING]
+> I was making the setup way too complicated and using a bunch of
+different tools and dependencies. I want to rework this to be much simpler to set up.
+Setting up your own postgres DB from scratch is a pain, and there are tools to
+do that or public containers via docker to make the process easier. Another thing
+would be to have a bash script that does all the granular setup so that others who
+try to redo this repo won't get frustrated and give up (like me in the future).
+I REALLY SHOULD HAVE JUST DONE MY OWN SERVER THINGS! SERVLETS ARE WEIRD, AND SO IS ENTERPRISE STUFF!
 
 ## [Prerequisites](#prerequisites)
 
@@ -20,8 +28,10 @@ Creating a small application that includes a database connection, object structu
 * Web Container? -- instructions at [Web Container](#web-container-setup)
 * Maven - for building and dependency management
 
-## [Build](#build)
+Nicer bare-bones front-end with NextJS requires node/npm for building and running.
 
+## [Build](#build)
+### Backend
 If you wanna clean it up, go ahead
 ```
 mvn clean
@@ -48,7 +58,20 @@ mvn package
 This should put everything into a WAR at the glassfish directory specified in ``pom.xml``. This should be something like
 ``/path/to/glassfish7/glassfish/domains/mydomain/autodeploy/simplest.war``
 
+### Frontend
+In order to run next stuff, this needs the next package. Do the following to get the dependencies from package.json
+```
+npm install
+```
+
+production building things would need the extra step
+```
+cd ./src/main/webapp
+npx next build
+```
+
 ## [Running](#running)
+### Backend (basic web server)
 Navigate to glassfish, start it up completely with the following
 ```
 /path/to/glassfish/bin/asadmin start-domain mydomain
@@ -61,6 +84,19 @@ To stop glassfish, do the following
 ```
 
 Enterprise stuff is actually stupid.
+
+### Frontend
+Navigate to the ``./src/main/webapp`` directory. If you want to continue running it as dev mode...
+```
+cd ./src/main/webapp
+npx next dev
+```
+
+If the build for a "production" next environment was done, then you can do the following:
+```
+cd ./src/main/webapp
+npx next start
+```
 
 ## [Web Container Setup](#web-container-setup)
 In order to have the servlets load, a web container directs traffic to the packaged set of classes that handle requests.
