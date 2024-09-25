@@ -1,4 +1,4 @@
-# [CRUD application](#crud-application)
+# [Basic CRUD application](#basic-crud-application)
 Creating a small application that includes a database connection, object structures, some API, and some front-end structure.
 
 
