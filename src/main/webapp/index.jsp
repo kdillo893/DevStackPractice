@@ -38,10 +38,11 @@
         <link rel="stylesheet" href="./css/index.css"/>
     </head>
     <body>
-        <h1><h:outputText value="Hello World!"/></h1>
-        <a href="api">Servlet Button</a>
+        <h1>Random Landing Page</h1>
+        <a href="api">API Root</a>
 
-        <h2>Maybe this is different</h2>
+        <p>I highly recommend using the next-js page instead of this... I don't plan on touching this</p>
+
         <form onsubmit="requestUser(this);
                 return false;">
             <input type="text" name="id">
@@ -50,7 +51,6 @@
 
 
         <%--maybe I can do a "pull in from servlet" thing here? --%>
-        <
 
 
     </body>
