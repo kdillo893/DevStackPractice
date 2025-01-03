@@ -34,21 +34,22 @@ Some arch instructions here: https://wiki.archlinux.org/title/PostgreSQL
 
 ### configuration for basic password and authentication
 Modify the following files within your Postgres data directory.
-   1. ``postgresql.conf``
-      * Add ``password_encryption`` with the desired encryption, like ``scram-sha-256`` or ``md5``. 
-   2. ``pg_hba.conf``
-      * Adjust the ``TRUST`` column to match your desired password encryption in step 1.
-   3. Create a new user to manage this database.
+   1. Create a new user to manage this database.
       * run ``psql`` with postgres user and do something like below, replace user name and password to your liking.
       ```
       CREATE USER mydbuser WITH PASSWORD 'testdb*123' LOGIN SUPERUSER CREATEDB;
       ```
       LOGIN, SUPERUSER and CREATEDB are privilege examples. for simple things and testing, can just use superuser and look for further configuration later.
-   4. if you want to specify a role instead of a user, you can do the following:
+   2. ``postgresql.conf``
+
+      * Add ``password_encryption`` with the desired encryption, like ``scram-sha-256`` or ``md5``. 
+   3. ``pg_hba.conf``
+      * Adjust the ``TRUST`` column to match your desired password encryption in step 1.
+      *. if you want to specify a role instead of a user, you can do the following:
       ```
       CREATE ROLE my_db_role WITH PASSWORD 'testdb*123' LOGIN SUPERUSER CREATEDB;
       ```
-   5. exit from the postgres psql and user session and test logging in with your role/user with password using ```psql -U [role/user] -d [dbname]``` to see if your user can access the things specified.
+   4. exit from the postgres psql and user session and test logging in with your role/user with password using ```psql -U [role/user] -d [dbname]``` to see if your user can access the things specified.
 
 Still solving some permission issues, I had some issues when setting it up again.
 
